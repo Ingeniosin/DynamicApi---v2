@@ -1,0 +1,24 @@
+import {useMemo} from "react";
+
+const captions = {
+    %captions%
+}
+
+const columns = [
+    %columns%
+]
+
+const Grid = ({filter, reference}) => {
+    const configuration = useMemo(() => ({
+        reference,
+        columns,
+        dataSource: {
+            api: "%api%",
+            pageSize: 10,
+            filter
+        }
+    }), [filter, reference]);
+    return useCustomGrid(configuration)
+};
+
+export default Grid;

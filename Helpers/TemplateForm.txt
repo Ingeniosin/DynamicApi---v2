@@ -1,0 +1,40 @@
+﻿import {ButtonItem, RequiredRule, SimpleItem} from "devextreme-react/form";
+import {useCallback, useRef} from "react";
+import {toast} from "react-hot-toast";
+
+const captions = {
+    required: 'El campo es requerido.',
+    %captions%
+}
+
+const labels = {
+    %labels%
+}
+
+const messages = {
+    loading: 'Guardando registro...',
+    success: 'Registro enviado correctamente',
+    error: e => 'Ocurrio un error al enviar el registro ' + e
+}
+
+const Form = () => {
+    const formRef = useRef(null)
+
+    const submit = useCallback(async () => {
+        const {isValidAsync, getData} = formRef.current;
+        const isValid = await isValidAsync();
+        if(!isValid) return;
+        const data = getData();
+        const ds = getDs("%api%");
+        await toast.promise(ds.insert(data), messages);
+    }, [])
+
+    return (
+        <CustomForm onEnterKey={submit} reference={formRef} formOptions={{colCount: 5}}>
+            %items%
+            <ButtonItem horizontalAlignment="center" buttonOptions={{text: 'Guardar', type: 'default', onClick: submit}}/>
+        </CustomForm>
+    );
+};
+
+export default Form;
