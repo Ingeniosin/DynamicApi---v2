@@ -76,8 +76,10 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
     }
 
     public RouteBuilder<TDbContext> addAction<TIn, TService>(string name, bool isScoped = false) where TIn : class where TService : IActionService<TIn> {
-        _routes.Add(new ActionRoute<TIn, TService>(name));
+        var route = new ActionRoute<TIn, TService>(name);
+        _routes.Add(route);
         _services.Add(new ServiceInfo(typeof(TService), isScoped));
+        _models.Add(typeof(TIn), route);
         return this;
     }
     

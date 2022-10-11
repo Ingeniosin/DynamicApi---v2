@@ -19,8 +19,12 @@ public class ActionRoute<TIn, TService> : Route where TService : IActionService<
         }*/
 
         var newInstance = string.IsNullOrEmpty(values) ? Activator.CreateInstance<TIn>() : JsonConvert.DeserializeObject<TIn>(values);
-        var result = await service.OnQuery(newInstance, httpContext);
-        return Serializer.Serialize(result, service.SerializeType);
+        try {
+            var result = await service.OnQuery(newInstance, httpContext);
+            return Serializer.Serialize(result, service.SerializeType);
+        } catch(Exception e) {
+            return Results.BadRequest(e.Message);
+        }
     }
 
     public ActionRoute(string name) : base(name) {

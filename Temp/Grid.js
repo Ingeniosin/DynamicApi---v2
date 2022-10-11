@@ -1,10 +1,8 @@
-import {ButtonItem, RequiredRule, SimpleItem} from "devextreme-react/form";
-import {useCallback, useRef} from "react";
-import {toast} from "react-hot-toast";
+import {useMemo} from "react";
 
 const captions = {
-    required: 'El campo es requerido.',
-    usuario: 'Usuario', 
+    asesor: 'Asesor', 
+	usuario: 'Usuario', 
 	tipoCompraVehiculo: 'Tipo Compra Vehiculo', 
 	marca: 'Marca', 
 	modelo: 'Modelo', 
@@ -13,60 +11,28 @@ const captions = {
 	formaAdquisicion: 'Forma Adquisicion'
 }
 
-const labels = {
-    usuario: {text: captions['usuario']}, 
-	tipoCompraVehiculo: {text: captions['tipoCompraVehiculo']}, 
-	marca: {text: captions['marca']}, 
-	modelo: {text: captions['modelo']}, 
-	presupuesto: {text: captions['presupuesto']}, 
-	cuotaMensual: {text: captions['cuotaMensual']}, 
-	formaAdquisicion: {text: captions['formaAdquisicion']}
-}
+const columns = [
+    {dataField: 'asesorId', dataType: 'number', caption: captions['asesor'], required: true, lookup: getDsLookup('Asesores', null, 'nombre')}, 
+	{dataField: 'usuarioId', dataType: 'number', caption: captions['usuario'], required: true, lookup: getDsLookup('Usuarios', null, 'nombreCompleto')}, 
+	{dataField: 'tipoCompraVehiculoId', dataType: 'number', caption: captions['tipoCompraVehiculo'], required: true, lookup: getDsLookup('TiposCompraVehiculo', null, 'nombre')}, 
+	{dataField: 'marca', dataType: 'string', caption: captions['marca'], required: true}, 
+	{dataField: 'modelo', dataType: 'string', caption: captions['modelo'], required: true}, 
+	{dataField: 'presupuesto', dataType: 'string', caption: captions['presupuesto'], required: true}, 
+	{dataField: 'cuotaMensual', dataType: 'string', caption: captions['cuotaMensual'], required: true}, 
+	{dataField: 'formaAdquisicionId', dataType: 'number', caption: captions['formaAdquisicion'], required: true, lookup: getDsLookup('FormasAdquisicion', null, 'nombre')}
+]
 
-const messages = {
-    loading: 'Guardando registro...',
-    success: 'Registro enviado correctamente',
-    error: e => 'Ocurrio un error al enviar el registro ' + e
-}
-
-const Form = () => {
-    const formRef = useRef(null)
-
-    const submit = useCallback(async () => {
-        const {isValidAsync, getData} = formRef.current;
-        const isValid = await isValidAsync();
-        if(!isValid) return;
-        const data = getData();
-        const ds = getDs("Solicitudes");
-        await toast.promise(ds.insert(data), messages);
-    }, [])
-
-    return (
-        <CustomForm onEnterKey={submit} reference={formRef} formOptions={{colCount: 5}}>
-            <SimpleItem dataField='usuarioId' label={labels['usuario']} editorType='dxSelectBox' editorOptions={getDsLookupForm('Usuarios', null, 'NombreCompleto')}>
-				<RequiredRule message={captions['required']} />
-			</SimpleItem>
-			<SimpleItem dataField='tipoCompraVehiculoId' label={labels['tipoCompraVehiculo']} editorType='dxSelectBox' editorOptions={getDsLookupForm('TiposCompraVehiculo', null, 'Nombre')}>
-				<RequiredRule message={captions['required']} />
-			</SimpleItem>
-			<SimpleItem dataField='marca' label={labels['marca']} editorType='dxTextBox'>
-				<RequiredRule message={captions['required']} />
-			</SimpleItem>
-			<SimpleItem dataField='modelo' label={labels['modelo']} editorType='dxTextBox'>
-				<RequiredRule message={captions['required']} />
-			</SimpleItem>
-			<SimpleItem dataField='presupuesto' label={labels['presupuesto']} editorType='dxTextBox'>
-				<RequiredRule message={captions['required']} />
-			</SimpleItem>
-			<SimpleItem dataField='cuotaMensual' label={labels['cuotaMensual']} editorType='dxTextBox'>
-				<RequiredRule message={captions['required']} />
-			</SimpleItem>
-			<SimpleItem dataField='formaAdquisicionId' label={labels['formaAdquisicion']} editorType='dxSelectBox' editorOptions={getDsLookupForm('FormasAdquisicion', null, 'Nombre')}>
-				<RequiredRule message={captions['required']} />
-			</SimpleItem>
-            <ButtonItem horizontalAlignment="center" buttonOptions={{text: 'Guardar', type: 'default', onClick: submit}}/>
-        </CustomForm>
-    );
+const Grid = ({filter, reference}) => {
+    const configuration = useMemo(() => ({
+        reference,
+        columns,
+        dataSource: {
+            api: "Solicitudes",
+            pageSize: 10,
+            filter
+        }
+    }), [filter, reference]);
+    return useCustomGrid(configuration)
 };
 
-export default Form;
+export default Grid;
