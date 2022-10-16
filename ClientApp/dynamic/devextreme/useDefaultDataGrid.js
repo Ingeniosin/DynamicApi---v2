@@ -1,7 +1,7 @@
 ﻿import DataGrid, {Column, Export, IDataGridOptions} from "devextreme-react/data-grid";
 import {useEffect, useMemo, useRef, useState} from "react";
-import {getDsOptions} from "../../api/api-service";
 import set from "lodash.set";
+import {getDsOptions} from "../api/api-service";
 
 class DataGridConfig {
     columns: Array<Column>;
