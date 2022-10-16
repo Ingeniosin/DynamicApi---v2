@@ -1,0 +1,7 @@
+"@coreui/coreui": "^4.2.2",
+"@coreui/react": "^4.4.0",
+"@types/react": "^18.0.21",
+"devextreme": "22.1.5",
+"lodash.set": "^4.3.2",
+"devextreme-aspnet-data-nojquery": "^2.8.6",
+"react-hot-toast": "^2.4.0",

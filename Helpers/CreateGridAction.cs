@@ -8,26 +8,46 @@ namespace DynamicApi.Helpers;
 
 public class CreateGridAction : IActionService<CreateGridInput> {
 
-    private readonly string TemplateGrid =  File.ReadAllText(@"D:\Escritorio\Lib\DynamicApi\Helpers\TemplateGrid.txt");
+    private readonly string TemplateGrid =  File.ReadAllText(@"E:\Escritorio\Lib\DynamicApi\Helpers\TemplateGrid.txt");
+    private readonly string TemplateDependencyGrid =  File.ReadAllText(@"E:\Escritorio\Lib\DynamicApi\Helpers\TemplateDependencyGrid.txt");
 
     public async Task<object> OnQuery(CreateGridInput input, HttpContext httpContext) {
         var inputModel = input.Class.ToLower().Trim();
         var models = Configuration.Models.Keys.ToList();
-        var model = models.First(x => x.Name.ToLower().Trim() == inputModel);
-        var properties = model.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.PropertyType != typeof(int) && !x.Name.EndsWith("Id")).ToList();
+        var model = models.FirstOrDefault(x => x.Name.ToLower().Trim().Equals(inputModel));
+        model ??= models.First(x => x.Name.ToLower().Trim().StartsWith(inputModel));
+        
+        
+        var properties = model.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(x => !(x.PropertyType.IsGenericType && x.PropertyType.GetGenericTypeDefinition() == typeof(List<>)))
+            .Where(x => x.PropertyType != typeof(int) && !x.Name.EndsWith("Id")).ToList();
 
+        var notDependency = string.IsNullOrEmpty(input.Dependency);
+        var dependency = properties.FirstOrDefault(x => x.Name.ToLower().Replace("Id", "").Equals(input.Dependency.ToLower().Replace("Id", "").Trim()));
+        if(!notDependency && dependency == null) {
+            notDependency = true;
+        } else {
+            properties.Remove(dependency);
+        }
+        var dependencyName = (dependency?.Name ?? string.Empty) + "Id";
+        
+        
         var captions = CreatorService.BuildCaptions(properties);
         var columns = BuildColumns(properties, models);
         var api = Configuration.Models[model].Name.Replace("/api/", "");
+
+      
         
         var placeholders = new Dictionary<string, string>(){
             { "captions", captions },
             { "columns", columns },
             { "api", api },
-            { "model", inputModel }
+            { "model", inputModel },
+            {"campoCamel", dependencyName.ToCamelCase()},
+            {"campo", dependencyName}
         };
 
-        return await CreatorService.BuildTempFile(TemplateGrid, placeholders);
+        return await CreatorService.BuildTempFile(notDependency ? TemplateGrid : TemplateDependencyGrid, placeholders);
     }
 
    
@@ -60,4 +80,5 @@ public class CreateGridAction : IActionService<CreateGridInput> {
 
 public class CreateGridInput {
     public string Class { get; set; }
+    public string Dependency { get; set; } = "";
 }

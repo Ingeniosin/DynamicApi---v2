@@ -1,5 +1,7 @@
-﻿using DynamicApi.Routes;
+﻿using System.IO.Compression;
+using DynamicApi.Routes;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
@@ -57,7 +59,30 @@ public static class Configuration {
         builder.Services.Configure<IISServerOptions>(options => {
             options.MaxRequestBodySize = int.MaxValue;
         });
-   
+        
+        builder.Services.Configure<GzipCompressionProviderOptions>(options => {
+            options.Level = CompressionLevel.SmallestSize;
+        });
+        builder.Services.Configure<BrotliCompressionProviderOptions>(options => {
+            options.Level = CompressionLevel.SmallestSize;
+        });
+        
+        builder.Services.AddResponseCompression(options => {
+            options.Providers.Add<GzipCompressionProvider>();
+            options.Providers.Add<BrotliCompressionProvider>();
+            
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] {
+                "application/octet-stream",
+                "application/json",
+                "application/xml",
+                "text/plain",
+                "text/xml",
+                "text/json",
+            });
+            options.EnableForHttps = true;
+
+        });
+
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         Console.WriteLine($"Connection string: {connectionString}");
         
@@ -71,6 +96,7 @@ public static class Configuration {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
         var app = builder.Build();
+        app.UseResponseCompression();
 
         if (!app.Environment.IsDevelopment()){
             app.UseHsts();
@@ -79,7 +105,9 @@ public static class Configuration {
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
+        
 
+        
         app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
 
         app.MapFallbackToFile("index.html");

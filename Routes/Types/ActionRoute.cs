@@ -23,7 +23,8 @@ public class ActionRoute<TIn, TService> : Route where TService : IActionService<
             var result = await service.OnQuery(newInstance, httpContext);
             return Serializer.Serialize(result, service.SerializeType);
         } catch(Exception e) {
-            return Results.BadRequest(e.Message);
+            Console.WriteLine(e);
+            return Results.BadRequest(e);
         }
     }
 

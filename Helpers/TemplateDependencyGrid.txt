@@ -8,17 +8,20 @@ const columns = [
     %columns%
 ]
 
-const Grid = ({filter, reference}) => {
+const Grid = ({reference, %campoCamel%}) => {
     const configuration = useMemo(() => ({
         reference,
         columns,
+        defaultValues: {
+            %campoCamel%
+        },
         editorMode: 'cell',
         dataSource: {
             api: "%api%",
             pageSize: 10,
-            filter
+            filter: ['%campo%', '=', %campoCamel%]
         }
-    }), [filter, reference]);
+    }), [reference]);
     return useCustomGrid(configuration)
 };
 

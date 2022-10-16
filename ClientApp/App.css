@@ -1,0 +1,31 @@
+﻿.dx-state-focused {
+    border: none !important;
+}
+
+#root > div.d-flex.align-items-center > div > div > i {
+    font-size: 24px;
+    width: 24px;
+}
+
+.dx-treeview-node {
+    padding-left: 0px !important;
+}
+
+li > .dx-treeview-item {
+    padding-left: 25px !important;
+}
+
+.dx-tabpanel .dx-tabs-wrapper {
+    display: flex !important;
+    border-bottom: none !important;
+    /*
+    background-color: #f7f7f7;
+    */
+    background-color: white !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+}
+
+.dx-tabpanel .dx-tabs-wrapper > *{
+    width: 100% !important;
+}
