@@ -1,26 +1,31 @@
 import {useMemo} from "react";
 
 const captions = {
-    nombre: 'Nombre', 
-	displayName: 'Display Name'
+    ip: 'Ip', 
+	userAgent: 'User Agent', 
+	date: 'Date'
 }
 
 const columns = [
-    {dataField: 'nombre', dataType: 'string', caption: captions['nombre'], required: true}, 
-	{dataField: 'displayName', dataType: 'string', caption: captions['displayName'], required: true}
+    {dataField: 'ip', dataType: 'string', caption: captions['ip'], required: true}, 
+	{dataField: 'userAgent', dataType: 'string', caption: captions['userAgent'], required: true}, 
+	{dataField: 'date', dataType: 'datetime', caption: captions['date'], required: true}
 ]
 
-const Grid = ({filter, reference}) => {
+const Grid = ({reference, versionId}) => {
     const configuration = useMemo(() => ({
         reference,
         columns,
+        defaultValues: {
+            versionId
+        },
         editorMode: 'cell',
         dataSource: {
-            api: "FormasAdquisicion",
+            api: "CheckRequests",
             pageSize: 10,
-            filter
+            filter: ['VersionId', '=', versionId]
         }
-    }), [filter, reference]);
+    }), [reference]);
     return useCustomGrid(configuration)
 };
 

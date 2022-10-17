@@ -4,6 +4,7 @@ public enum SerializeType {
     STANDARD,
     FILE,
     NONE,
+    CUSTOM,
 }
 
 public static class Serializer {
@@ -11,6 +12,8 @@ public static class Serializer {
         { SerializeType.STANDARD, new StandardSerializer() },
         { SerializeType.FILE, new FileSerializer() },
         { SerializeType.NONE, new NoneSerializer() },
+        { SerializeType.CUSTOM, new CustomSerializer() },
+
     };
 
     public static IResult Ok(SerializeType serializeType = SerializeType.NONE) {

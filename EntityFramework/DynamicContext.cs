@@ -23,7 +23,7 @@ public class DynamicContext : DbContext {
         return base.SaveChangesAsync(true, CancellationToken.None);
     }
 
-    private async Task<List<Func<Task>>> OnSaving(IServiceScope scope) {
+    private async Task<List<Func<Task>>> OnSaving(AsyncServiceScope scope) {
         var entries = ChangeTracker.Entries().AsParallel().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).Select(entityEntry => {
             var entity = entityEntry.Entity;
             var type = Unproxy(entity.GetType());

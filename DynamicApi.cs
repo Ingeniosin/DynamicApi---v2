@@ -16,8 +16,12 @@ public class DynamicApi<TDbContext> where TDbContext : DynamicContext {
 
     public DynamicApi(Action<RouteBuilder<TDbContext>> routeBuilderFn, WebApplicationBuilder builder, Action<WebApplication> preStart = null) {
         var routeBuilder = new RouteBuilder<TDbContext>(_routes = new List<Route>(), _services = new List<ServiceInfo>(), _defaultValues = new List<Action<TDbContext>>(), Configuration.Models);
-        routeBuilder.addAction<CreateGridInput, CreateGridAction>("CreateGrid");
-        routeBuilder.addAction<CreateFormInput, CreateFormAction>("CreateForm");
+      
+        if (builder.Environment.IsDevelopment()) {
+            routeBuilder.addAction<CreateGridInput, CreateGridAction>("CreateGrid");
+            routeBuilder.addAction<CreateFormInput, CreateFormAction>("CreateForm");
+            Console.WriteLine("Development mode");
+        }
         routeBuilderFn(routeBuilder);
         _builder = builder;
         _preStart = preStart;

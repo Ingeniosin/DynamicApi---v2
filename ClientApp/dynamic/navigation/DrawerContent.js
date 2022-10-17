@@ -1,11 +1,7 @@
 ﻿import TreeView from "devextreme-react/tree-view";
 import {useNavigate} from "react-router-dom";
+import {routes} from "../../Configuration";
 
-const routes = [
-    {text: "Asesores", icon: "user", route: "/"},
-    {text: "Clientes", icon: "group", route: "/clients"},
-    {text: "Configuracion", icon: "preferences", route: "/config"},
-];
 
 const DrawerContent = () => {
     const navigate = useNavigate();

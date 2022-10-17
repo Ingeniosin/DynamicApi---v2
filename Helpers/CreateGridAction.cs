@@ -20,7 +20,7 @@ public class CreateGridAction : IActionService<CreateGridInput> {
         
         var properties = model.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(x => !(x.PropertyType.IsGenericType && x.PropertyType.GetGenericTypeDefinition() == typeof(List<>)))
-            .Where(x => x.PropertyType != typeof(int) && !x.Name.EndsWith("Id")).ToList();
+            .Where(x => !(x.PropertyType== typeof(int) && x.Name.EndsWith("Id"))).ToList();
 
         var notDependency = string.IsNullOrEmpty(input.Dependency);
         var dependency = properties.FirstOrDefault(x => x.Name.ToLower().Replace("Id", "").Equals(input.Dependency.ToLower().Replace("Id", "").Trim()));
@@ -55,7 +55,8 @@ public class CreateGridAction : IActionService<CreateGridInput> {
     private static string BuildColumns(IEnumerable<PropertyInfo> properties, IReadOnlyCollection<Type> models) {
         return string.Join(", \n\t", properties.Select(x => {
             var dataField = x.Name.ToCamelCase();
-            var isNullable = x.PropertyType.IsGenericType && x.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>);
+            var isBoolean = x.PropertyType == typeof(bool);
+            var isNullable = x.PropertyType.IsGenericType && x.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>) && !isBoolean;
             var nullableStr = (!isNullable).ToString().ToLower();
             var type = CreatorService.GetGridType(x);
             var isVirtual = x.GetGetMethod()!.IsVirtual;

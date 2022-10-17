@@ -15,7 +15,8 @@ public class CreatorService {
     public static string BuildLabels(IEnumerable<PropertyInfo> properties) {
         return string.Join(", \n\t", properties.Select(x => {
             var camelCase = x.Name.ToCamelCase();
-            return $"{camelCase}: {{text: captions['{camelCase}']}}";
+            var isBoolean = x.PropertyType == typeof(bool);
+            return isBoolean ? $"{camelCase}: {{text: captions['{camelCase}'],  alignment: 'center', location: 'left',}}" : $"{camelCase}: {{text: captions['{camelCase}']}}";
         }));
     }
     
@@ -35,7 +36,7 @@ public class CreatorService {
             "String" => "dxTextBox",
             "Int32" => "dxNumberBox",
             "DateTime" => "dxDateBox",
-            "Boolean" => "dxSwitch",
+            "Boolean" => "dxCheckBox",
             _ => "dxTextBox"
         };
     }

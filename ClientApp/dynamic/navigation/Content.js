@@ -1,4 +1,5 @@
 ﻿import {Route, Routes} from "react-router-dom";
+import {routes} from "../../Configuration";
 
 const Content = () => {
     return (
@@ -6,7 +7,13 @@ const Content = () => {
             <div className="container py-5">
                 <div style={{backgroundColor: "#fff", borderRadius: "10px", padding: "20px", boxShadow: "0 0 10px rgba(0,0,0,0.1)"}}>
                     <Routes>
-                        <Route path="/" element={<h1>Page 1</h1>}/>
+                        {
+                            routes.map((route, index) => {
+                                return (
+                                    <Route key={index} path={route.route} element={route.component} />
+                                )
+                            })
+                        }
                     </Routes>
                 </div>               
             </div>

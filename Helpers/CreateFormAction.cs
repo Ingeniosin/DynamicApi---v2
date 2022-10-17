@@ -42,6 +42,7 @@ public class CreateFormAction : IActionService<CreateFormInput> {
             var isNullable = x.PropertyType.IsGenericType && x.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>);
             var isVirtual = x.GetGetMethod()!.IsVirtual;
             var dxType = CreatorService.GetEditorType(x);
+            var isBoolean = x.PropertyType.Name == "Boolean";
             var options = "";
             if(isVirtual) {
                 var relationRoute = models.First(y => y.Name == x.PropertyType.Name);
@@ -54,7 +55,7 @@ public class CreateFormAction : IActionService<CreateFormInput> {
 
             var result = new List<string>();
             result.Add($"<SimpleItem dataField='{dataField}' label={{labels['{x.Name.ToCamelCase()}']}} editorType='{dxType}'{options}>");
-            if(!isNullable) {
+            if(!isNullable && !isBoolean) {
                 result.Add("\t<RequiredRule message={captions['required']} />");
             }
             result.Add("</SimpleItem>");
