@@ -8,8 +8,8 @@ namespace DynamicApi.Helpers;
 
 public class CreateGridAction : IActionService<CreateGridInput> {
 
-    private readonly string TemplateGrid =  File.ReadAllText(@"E:\Escritorio\Lib\DynamicApi\Helpers\TemplateGrid.txt");
-    private readonly string TemplateDependencyGrid =  File.ReadAllText(@"E:\Escritorio\Lib\DynamicApi\Helpers\TemplateDependencyGrid.txt");
+    private readonly string TemplateGrid =  File.ReadAllText(@"D:\Escritorio\Lib\DynamicApi\Helpers\TemplateGrid.txt");
+    private readonly string TemplateDependencyGrid =  File.ReadAllText(@"D:\Escritorio\Lib\DynamicApi\Helpers\TemplateDependencyGrid.txt");
 
     public async Task<object> OnQuery(CreateGridInput input, HttpContext httpContext) {
         var inputModel = input.Class.ToLower().Trim();
@@ -62,12 +62,19 @@ public class CreateGridAction : IActionService<CreateGridInput> {
             var isVirtual = x.GetGetMethod()!.IsVirtual;
             var lookup = "";
             if(isVirtual) {
-                var relationRoute = models.First(y => y.Name == x.PropertyType.Name);
-                var relName = Configuration.Models[relationRoute].Name.Replace("/api/", "");
-                var display = relationRoute.GetProperties().First(y => y.PropertyType == typeof(string)).Name;
-                lookup = $", lookup: getDsLookup('{relName}', null, '{display.ToCamelCase()}')";
-                dataField += "Id";
-                type = "number";
+                var relationRoute = models.FirstOrDefault(y => y.Name == x.PropertyType.Name);
+                if(relationRoute != null) {
+                    var relName = Configuration.Models[relationRoute].Name.Replace("/api/", "");
+                    var display = relationRoute.GetProperties().FirstOrDefault(y => y.PropertyType == typeof(string))?.Name ?? "Undefined";
+          
+                    lookup = $", lookup: getDsLookup('{relName}', null, '{display.ToCamelCase()}')";
+                    dataField += "Id";
+                    type = "number";
+                 
+                } else {
+                    Console.WriteLine($"No se encontro la ruta para el modelo {x.PropertyType.Name}");
+                }
+             
             }
             
             return $"{{dataField: '{dataField}', dataType: '{type}', caption: captions['{x.Name.ToCamelCase()}'], required: {nullableStr}{lookup}}}";

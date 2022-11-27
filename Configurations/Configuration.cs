@@ -31,6 +31,8 @@ public static class Configuration {
     
     public static WebApplication Configure<TDbContext>(WebApplicationBuilder builder, List<ServiceInfo> services, List<Action<TDbContext>> defaultValues) where TDbContext : DbContext {
         JsonConvert.DefaultSettings = () => JsonConfigurations;
+        
+        
 
         services.ForEach(service => {
             if(service.IsScoped) builder.Services.AddScoped(service.ServiceType);
@@ -59,6 +61,15 @@ public static class Configuration {
         builder.Services.Configure<IISServerOptions>(options => {
             options.MaxRequestBodySize = int.MaxValue;
         });
+        
+        builder.Services.AddCors(options => {
+            options.AddPolicy("AllowAll", corsPolicyBuilder => {
+                corsPolicyBuilder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
+        
         
         builder.Services.Configure<GzipCompressionProviderOptions>(options => {
             options.Level = CompressionLevel.SmallestSize;
@@ -89,8 +100,12 @@ public static class Configuration {
         builder.Services.AddDbContext<TDbContext>(x => {
             x.UseLazyLoadingProxies()
                 .UseNpgsql(connectionString)
-                .LogTo(Console.WriteLine, new[] {RelationalEventId.CommandExecuted})
                 .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.DetachedLazyLoadingWarning));
+
+            if(builder.Environment.IsDevelopment()) {
+                x.LogTo(Console.WriteLine, new[]{ RelationalEventId.CommandExecuted });
+            }
+
         });
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -106,8 +121,8 @@ public static class Configuration {
         app.UseStaticFiles();
         app.UseRouting();
         
+        app.UseCors("AllowAll");
 
-        
         app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
 
         app.MapFallbackToFile("index.html");
@@ -123,6 +138,13 @@ public static class Configuration {
         foreach (var defaultValue in defaultValues) {
             defaultValue(applicationDbContext);
         }
+        applicationDbContext.Database.ExecuteSqlRaw("SET TIME ZONE 'America/Bogota';");
+        var timezone = applicationDbContext.Database.ExecuteSqlRaw("SELECT current_setting('TIMEZONE');");
+        Console.WriteLine($"Timezone DB: {timezone}");
+        Console.WriteLine($"Timezone .net: {TimeZoneInfo.Local.DisplayName}");
+        Console.WriteLine("Tablas creadas");
+        
+        
         Console.WriteLine("Tablas creadas correctamente");
         Console.WriteLine($"¡Rutas creadas correctamente!");
         return app;

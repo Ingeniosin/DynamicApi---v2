@@ -17,9 +17,6 @@ public class ServiceInfo {
     public ServiceInfo(Type serviceType, bool isScoped, ListenerInfo listenerInfo) : this(serviceType, isScoped) {
         ListenerInfo = listenerInfo;
     }
-
-
-
 }
 
 public class ListenerInfo {

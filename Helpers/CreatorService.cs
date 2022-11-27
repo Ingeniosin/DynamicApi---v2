@@ -5,7 +5,7 @@ namespace DynamicApi.Helpers;
 
 public class CreatorService {
     
-    private const string Temp = @"E:\Escritorio\Lib\DynamicApi\Temp\Grid.js";
+    private const string Temp = @"D:\Escritorio\Lib\DynamicApi\Temp\Grid.js";
 
     
     public static string BuildCaptions(IEnumerable<PropertyInfo> properties) {
@@ -36,7 +36,7 @@ public class CreatorService {
             "String" => "dxTextBox",
             "Int32" => "dxNumberBox",
             "DateTime" => "dxDateBox",
-            "Boolean" => "dxCheckBox",
+            "Boolean" => "dxSwitch",
             _ => "dxTextBox"
         };
     }

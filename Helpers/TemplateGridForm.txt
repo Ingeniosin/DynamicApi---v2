@@ -1,0 +1,66 @@
+import {useMemo} from "react";
+
+const captions = {
+    %captions%
+}
+
+const columns = [
+    %columns%
+]
+
+const Grid = ({filter, reference}) => {
+    const currentIndex = useRef(0)
+    const configuration = useMemo(() => ({
+        reference,
+        columns,
+        editorMode: 'cell',
+        dataSource: {
+            api: "%api%",
+            pageSize: 10,
+            filter
+        },
+        otherConfigs: {
+            onRowInserted: ({component}) => component.refresh(),
+            onRowUpdated: ({component}) => component.refresh()
+        },
+         ignore: ['defaultEditing'],
+                childs: (gridRef) => {
+                    return (
+                        [
+                            <Editing mode="popup" allowUpdating={true} allowAdding={true} allowDeleting={true} useIcons={true} onEditRowKeyChange={(e) => currentIndex.current = e} confirmDelete={""}>
+                                <Popup resizeEnabled={true} title="Información de la versión" showTitle={true} width={650} height={450} animation={{show: {type: "fade", from: 0, to: 1}, hide: {type: "fade", from: 1, to: 0}}} />
+                                <Form defaultFormData={{appId}} colCount={1}>
+                                    
+        
+                                    <SimpleItem  component={() => {
+                                        const {instance, data} = gridRef.current;
+                                        const rowData = data().filter((item) => item.id === currentIndex.current)[0];
+                                        return (
+                                            <div className=" card p-3 mx-5" id="dropZone">
+                                                <h6 className="text-center">Archivo: </h6>
+                                                <FileUploader
+                                                    readyToUploadMessage={""}
+                                                    dropZone={"#dropZone"}
+                                                    defaultValue={rowData ? [{name: rowData.upload.name,}] : []}
+                                                    onValueChanged={({value, component}) => {
+                                                        if(value.length !== 0) return;
+                                                        setImmediate(() => component.option('value', rowData ? [{name: rowData.upload.name,}] : []))
+                                                    }}
+                                                    uploadFile={async (file, progressCallback) => {
+                                                        const response = await uploadFile(file, progressCallback);
+                                                        instance.cellValue(instance.getRowIndexByKey(currentIndex.current), 'uploadId', response.id)
+                                                    }}/>
+                                            </div>
+                                        )
+                                    }}>
+                                    </SimpleItem>
+                                </Form>
+                            </Editing>,     
+                        ].map((x, i) => cloneElement(x, {key: i}))
+                    )
+                }
+    }), [filter, reference]);
+    return useCustomGrid(configuration)
+};
+
+export default Grid;

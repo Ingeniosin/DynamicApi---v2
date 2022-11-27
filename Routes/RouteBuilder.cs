@@ -65,6 +65,20 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
         CheckDefaultValues(dbSet);
         return this;
     }
+    
+    public RouteBuilder<TDbContext> addGeneral<T, TService>(bool isScoped = false) where T : class where TService : ListenerService<T, TDbContext> {
+        var serviceType = typeof(TService);
+        var configuration = serviceType.GetProperty("Configuration", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as ListenerConfiguration;
+        if(configuration == null)
+            throw new Exception("Could not find configuration");
+        var listenerInfo = new ListenerInfo(typeof(T), configuration);
+        /*var route = new NonServiceRoutes<T, TDbContext>(name, dbSet);
+        _routes.Add(route);*/
+        _services.Add(new ServiceInfo(serviceType, isScoped, listenerInfo));
+        //_models.Add(typeof(T), route);
+        //CheckDefaultValues(dbSet);
+        return this;
+    }
 
     public RouteBuilder<TDbContext> addService<T, TService>(Func<TDbContext, DbSet<T>> dbSet, bool isScoped = false) where T : class where TService : ListenerService<T, TDbContext> {
         var propertyInfo = typeof(TDbContext).GetProperties().FirstOrDefault(p => p.PropertyType == typeof(DbSet<T>));

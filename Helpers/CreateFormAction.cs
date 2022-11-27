@@ -45,12 +45,17 @@ public class CreateFormAction : IActionService<CreateFormInput> {
             var isBoolean = x.PropertyType.Name == "Boolean";
             var options = "";
             if(isVirtual) {
-                var relationRoute = models.First(y => y.Name == x.PropertyType.Name);
-                var relName = Configuration.Models[relationRoute].Name.Replace("/api/", "");
-                var display = relationRoute.GetProperties().First(y => y.PropertyType == typeof(string)).Name;
-                dataField += "Id";
-                dxType = "dxSelectBox";
-                options = $" editorOptions={{getDsLookupForm('{relName}', null, '{display}')}}";
+                var relationRoute = models.FirstOrDefault(y => y.Name == x.PropertyType.Name);
+                if(relationRoute != null) {
+                    var relName = Configuration.Models[relationRoute].Name.Replace("/api/", "");
+                    var display = relationRoute.GetProperties().First(y => y.PropertyType == typeof(string)).Name;
+                    dataField += "Id";
+                    dxType = "dxSelectBox";
+                    options = $" editorOptions={{getDsLookupForm('{relName}', null, '{display}')}}";
+                } else {
+                    Console.WriteLine($"No se encontro la ruta para el modelo {x.PropertyType.Name}");
+                }
+          
             }
 
             var result = new List<string>();

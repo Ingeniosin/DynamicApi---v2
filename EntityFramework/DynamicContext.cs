@@ -47,7 +47,6 @@ public class DynamicContext : DbContext {
                 onSaved.Add(savedHandle);
             }
         }
-        
         return onSaved;
     }
     
