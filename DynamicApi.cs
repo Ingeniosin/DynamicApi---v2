@@ -7,24 +7,29 @@ using Route=DynamicApi.Routes.Route;
 namespace DynamicApi; 
 
 public class DynamicApi<TDbContext> where TDbContext : DynamicContext {
-    
     private readonly List<Route> _routes;
     private readonly List<ServiceInfo> _services;
     private readonly List<Action<TDbContext>> _defaultValues;
     private readonly WebApplicationBuilder _builder;
-    private readonly Action<WebApplication> _preStart;
+    private readonly Action<WebApplication, ILogger<DynamicApi<TDbContext>>> _preStart;
+    private ILogger<DynamicApi<TDbContext>> _logger;
 
-    public DynamicApi(Action<RouteBuilder<TDbContext>> routeBuilderFn, WebApplicationBuilder builder, Action<WebApplication> preStart = null) {
+    public DynamicApi(Action<RouteBuilder<TDbContext>> routeBuilderFn, WebApplicationBuilder builder, Action<WebApplication, ILogger<DynamicApi<TDbContext>>> preStart = null) {
+        using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder.SetMinimumLevel(LogLevel.Trace).AddConsole());
+        _logger = loggerFactory.CreateLogger<DynamicApi<TDbContext>>();
+       
+        
         var routeBuilder = new RouteBuilder<TDbContext>(
             _routes = new List<Route>(), 
             _services = new List<ServiceInfo>(), 
             _defaultValues = new List<Action<TDbContext>>(), 
-            Configuration.Models);
+            Configuration.Models
+        );
       
         if (builder.Environment.IsDevelopment()) {
             routeBuilder.addAction<CreateGridInput, CreateGridAction>("CreateGrid");
             routeBuilder.addAction<CreateFormInput, CreateFormAction>("CreateForm");
-            Console.WriteLine("Development mode");
+            _logger.LogWarning("Development mode enabled, adding CreateGrid and CreateForm actions");
         }
         
         routeBuilder.addAction<object, HealthAction>("Health");
@@ -35,11 +40,10 @@ public class DynamicApi<TDbContext> where TDbContext : DynamicContext {
     }
 
     public void Start() {
-        var app = Configuration.Configure(_builder, _services, _defaultValues);
-        _routes.ForEach(route => route.Load(app));
-        _preStart?.Invoke(app);
+        var app = Configuration.Configure(_builder, _services, _defaultValues, _logger);
+        _routes.ForEach(route => route.Load(app, _logger));
+        _preStart?.Invoke(app, _logger);
         app.Run();
-
     }
 
 

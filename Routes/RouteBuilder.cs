@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net.Sockets;
+using System.Reflection;
 using DynamicApi.EntityFramework;
 using DynamicApi.Routes.Types;
 using DynamicApi.Services;
@@ -13,13 +14,18 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
     private readonly List<ServiceInfo> _services;
     private readonly Dictionary<Type, Route>_models;
     private readonly List<Action<TDbContext>> _defaultValues;
-    
+    private string _prefix;
 
     public RouteBuilder(List<Route> routes, List<ServiceInfo> services, List<Action<TDbContext>> defaultValues, Dictionary<Type, Route> models) {
         _routes = routes;
         _services = services;
         _defaultValues = defaultValues;
         _models = models;
+    }
+    
+    public RouteBuilder<TDbContext> Prefix(string prefix) {
+        _prefix = prefix;
+        return this;
     }
 
     public RouteBuilder<TDbContext> addNonService<T>(Func<TDbContext, DbSet<T>> dbSet) where T : class {
@@ -30,10 +36,15 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
         addNonService(name, dbSet);
         return this;
     }
+    
+    public void addRoute(Route route) {
+        route.Name = _prefix + route.Name;
+        _routes.Add(route);
+    }
 
     public RouteBuilder<TDbContext> addNonService<T>(string name, Func<TDbContext, DbSet<T>> dbSet) where T : class {
         var route = new NonServiceRoutes<T, TDbContext>(name, dbSet);
-        _routes.Add(route);
+        addRoute(route);
         _models.Add(typeof(T), route);
         CheckDefaultValues(dbSet);
         return this;
@@ -59,7 +70,7 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
             throw new Exception("Could not find configuration");
         var listenerInfo = new ListenerInfo(typeof(T), configuration);
         var route = new NonServiceRoutes<T, TDbContext>(name, dbSet);
-        _routes.Add(route);
+        addRoute(route);
         _services.Add(new ServiceInfo(serviceType, isScoped, listenerInfo));
         _models.Add(typeof(T), route);
         CheckDefaultValues(dbSet);
@@ -73,7 +84,7 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
             throw new Exception("Could not find configuration");
         var listenerInfo = new ListenerInfo(typeof(T), configuration);
         /*var route = new NonServiceRoutes<T, TDbContext>(name, dbSet);
-        _routes.Add(route);*/
+          addRoute(route);*/
         _services.Add(new ServiceInfo(serviceType, isScoped, listenerInfo));
         //_models.Add(typeof(T), route);
         //CheckDefaultValues(dbSet);
@@ -91,7 +102,7 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
 
     public RouteBuilder<TDbContext> addAction<TIn, TService>(string name, bool isScoped = false) where TIn : class where TService : IActionService<TIn> {
         var route = new ActionRoute<TIn, TService>(name);
-        _routes.Add(route);
+        addRoute(route);
         _services.Add(new ServiceInfo(typeof(TService), isScoped));
         _models.Add(typeof(TIn), route);
         return this;

@@ -29,18 +29,20 @@ public static class Configuration {
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
     };
     
-    public static WebApplication Configure<TDbContext>(WebApplicationBuilder builder, List<ServiceInfo> services, List<Action<TDbContext>> defaultValues) where TDbContext : DbContext {
+    public static WebApplication Configure<TDbContext>(WebApplicationBuilder builder, List<ServiceInfo> services, List<Action<TDbContext>> defaultValues, ILogger logger) where TDbContext : DbContext {
         JsonConvert.DefaultSettings = () => JsonConfigurations;
         
-        
-
         services.ForEach(service => {
-            if(service.IsScoped) builder.Services.AddScoped(service.ServiceType);
-            else builder.Services.AddSingleton(service.ServiceType);
+            if(service.IsScoped) 
+                builder.Services.AddScoped(service.ServiceType);
+            else 
+                builder.Services.AddSingleton(service.ServiceType);
             if(service.IsListener) {
                 Listeners.Add(service);
             }
         });
+        
+        logger.LogInformation("Configuring services...");
         
         builder.Services.AddControllersWithViews();
         
@@ -95,7 +97,7 @@ public static class Configuration {
         });
 
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        Console.WriteLine($"Connection string: {connectionString}");
+        logger.LogWarning($"Connection string: {connectionString}");
         
         builder.Services.AddDbContext<TDbContext>(x => {
             x.UseLazyLoadingProxies()
@@ -103,7 +105,7 @@ public static class Configuration {
                 .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.DetachedLazyLoadingWarning));
 
             if(builder.Environment.IsDevelopment()) {
-                x.LogTo(Console.WriteLine, new[]{ RelationalEventId.CommandExecuted });
+                x.LogTo(msg => logger.LogInformation(msg), new[] {RelationalEventId.CommandExecuted});
             }
 
         });
@@ -132,21 +134,17 @@ public static class Configuration {
         using var scope = app.Services.CreateScope();
         var applicationDbContext = scope.ServiceProvider.GetService<TDbContext>();
         if (applicationDbContext == null) throw new Exception("ApplicationDbContext is null");
-        Console.WriteLine("Starting server...");
-        Console.WriteLine("Creando tablas...");
+        logger.LogInformation("Starting server...");
         applicationDbContext.Database.Migrate();
         foreach (var defaultValue in defaultValues) {
             defaultValue(applicationDbContext);
         }
         applicationDbContext.Database.ExecuteSqlRaw("SET TIME ZONE 'America/Bogota';");
         var timezone = applicationDbContext.Database.ExecuteSqlRaw("SELECT current_setting('TIMEZONE');");
-        Console.WriteLine($"Timezone DB: {timezone}");
-        Console.WriteLine($"Timezone .net: {TimeZoneInfo.Local.DisplayName}");
-        Console.WriteLine("Tablas creadas");
-        
-        
-        Console.WriteLine("Tablas creadas correctamente");
-        Console.WriteLine($"¡Rutas creadas correctamente!");
+        logger.LogWarning($"Timezone DB: {timezone}");
+        logger.LogWarning($"Timezone .net: {TimeZoneInfo.Local.DisplayName}");
+        logger.LogInformation("Tablas creadas!");
+
         return app;
     }
     

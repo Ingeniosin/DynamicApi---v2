@@ -65,12 +65,12 @@ public class NonServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext> where 
         return Serializer.Ok();
     }
 
-    public override void Load(WebApplication application) {
+    public override void Load(WebApplication application, ILogger logger) {
         application.MapGet(Name, Get);
         application.MapPost(Name, Post);
         application.MapPut(Name, Put);
         application.MapDelete(Name, Delete);
-        Console.WriteLine($"Loaded {Name}");
+        logger.LogInformation($"Loaded {Name}");
     }
 
     public NonServiceRoutes(string name, Func<TDbContext, DbSet<T>> dbSet) : base(name, dbSet) {

@@ -31,7 +31,8 @@ public class ActionRoute<TIn, TService> : Route where TService : IActionService<
     public ActionRoute(string name) : base(name) {
     }
 
-    public override void Load(WebApplication application) {
+    public override void Load(WebApplication application, ILogger logger) {
         application.MapPost(Name, Post);
+        logger.LogInformation($"Loaded {Name}");
     }
 }

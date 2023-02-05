@@ -25,12 +25,13 @@ public class ServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext> where TDb
         ListenerConfiguration = listenerConfiguration;
     }
 
-    public override void Load(WebApplication application) {
+    public override void Load(WebApplication application, ILogger logger) {
         var nonService = new NonServiceRoutes<T, TDbContext>(Name, DbSet);
         application.MapGet(Name, nonService.Get);
         application.MapGet(Name, nonService.Post);
         application.MapGet(Name, nonService.Put);
         application.MapGet(Name, nonService.Delete);
+        logger.LogInformation($"Loaded {Name}");
 
     }
 }

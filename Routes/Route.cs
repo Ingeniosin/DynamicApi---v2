@@ -1,11 +1,16 @@
 ﻿namespace DynamicApi.Routes; 
 
 public abstract class Route {
-    public readonly string Name;
+    private string _name;
 
-    protected Route(string name) {
-        Name = "/api/"+name;
+    public string Name {
+        get => "/api/" + _name.Replace("/api/", "");
+        set => _name = value;
     }
 
-    public abstract void Load(WebApplication application);
+    protected Route(string name) {
+        Name = name;
+    }
+
+    public abstract void Load(WebApplication application, ILogger logger);
 }
