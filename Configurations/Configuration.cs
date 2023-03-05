@@ -102,8 +102,8 @@ public static class Configuration {
         builder.Services.AddDbContext<TDbContext>(x => {
             x.UseLazyLoadingProxies()
                 .UseNpgsql(connectionString)
+                //.UseSnakeCaseNamingConvention()
                 .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.DetachedLazyLoadingWarning));
-
             if(builder.Environment.IsDevelopment()) {
                 x.LogTo(msg => logger.LogInformation(msg), new[] {RelationalEventId.CommandExecuted});
             }

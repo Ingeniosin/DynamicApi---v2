@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using System.Reflection;
+﻿using System.Reflection;
 using DynamicApi.EntityFramework;
 using DynamicApi.Routes.Types;
 using DynamicApi.Services;
@@ -30,7 +29,7 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
 
     public RouteBuilder<TDbContext> addNonService<T>(Func<TDbContext, DbSet<T>> dbSet) where T : class {
         var propertyInfo = typeof(TDbContext).GetProperties().FirstOrDefault(p => p.PropertyType == typeof(DbSet<T>));
-        var name = propertyInfo?.Name;
+        string name = propertyInfo?.Name;
         if (name == null)
             throw new Exception("Could not find property name");
         addNonService(name, dbSet);
@@ -107,5 +106,4 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
         _models.Add(typeof(TIn), route);
         return this;
     }
-    
 }
