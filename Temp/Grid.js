@@ -1,15 +1,17 @@
 import {useMemo} from "react";
 
 const captions = {
-    name: 'Name', 
-	startDate: 'Start Date', 
-	endDate: 'End Date'
+    nombre: 'Nombre', 
+	apellido: 'Apellido', 
+	email: 'Email', 
+	contrasena: 'Contrasena'
 }
 
 const columns = [
-    {dataField: 'name', dataType: 'string', caption: captions['name'], required: true}, 
-	{dataField: 'startDate', dataType: 'datetime', caption: captions['startDate'], required: true}, 
-	{dataField: 'endDate', dataType: 'datetime', caption: captions['endDate'], required: true}
+    {dataField: 'nombre', dataType: 'string', caption: captions['nombre'], required: true}, 
+	{dataField: 'apellido', dataType: 'string', caption: captions['apellido'], required: true}, 
+	{dataField: 'email', dataType: 'string', caption: captions['email'], required: true}, 
+	{dataField: 'contrasena', dataType: 'string', caption: captions['contrasena'], required: true}
 ]
 
 const Grid = ({filter, reference}) => {
@@ -18,7 +20,7 @@ const Grid = ({filter, reference}) => {
         columns,
         editorMode: 'cell',
         dataSource: {
-            api: "PayrollBooks",
+            api: "Usuarios",
             pageSize: 10,
             filter
         }

@@ -5,6 +5,7 @@ public enum SerializeType {
     FILE,
     NONE,
     CUSTOM,
+    ERROR,
 }
 
 public static class Serializer {
@@ -13,6 +14,7 @@ public static class Serializer {
         { SerializeType.FILE, new FileSerializer() },
         { SerializeType.NONE, new NoneSerializer() },
         { SerializeType.CUSTOM, new CustomSerializer() },
+        { SerializeType.ERROR, new ErrorSerializer() },
 
     };
 

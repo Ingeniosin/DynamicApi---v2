@@ -1,8 +1,11 @@
-﻿using DevExtreme.AspNet.Data;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using DevExtreme.AspNet.Data;
 using DynamicApi.Configurations;
 using DynamicApi.DevExpress;
 using DynamicApi.EntityFramework;
 using DynamicApi.Serializers;
+using DynamicApi.Validators;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -10,23 +13,30 @@ namespace DynamicApi.Routes.Types;
 
 public class NonServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext> where TDbContext : DynamicContext where T : class {
 
-    private readonly IEnumerable<string> StaticFields = typeof(T).GetProperties().Where(x =>  x?.GetGetMethod()?.IsVirtual != true).Select(x => string.Concat(x.Name[..1].ToLower(), x.Name.AsSpan(1))).ToList();
+    private readonly IEnumerable<string> _staticFields = typeof(T).GetProperties().Where(x =>  x?.GetGetMethod()?.IsVirtual != true).Select(x => string.Concat(x.Name[..1].ToLower(), x.Name.AsSpan(1))).ToList();
+    private readonly IEnumerable<string> _ignoredFields = typeof(T).GetProperties().Where(x => x?.GetCustomAttribute<JsonIgnoreGet>() != null).Select(x => string.Concat(x.Name[..1].ToLower(), x.Name.AsSpan(1))).ToList();
     
     public async Task<IResult> Get(DataSourceLoadOptions loadOptions, TDbContext db) {
         var dbSet = DbSet(db);
         
         var select = loadOptions.Select?.ToList();
-        if(select != null) {
+
+        if(select == null) {
+            select = _staticFields.ToList();
+        } else  {
             var recursiveFields = select.Where(x => x.StartsWith("-")).ToList();
             if(select.Contains("*")) {
-                select.AddRange(StaticFields);
+                select.AddRange(_staticFields);
                 select.Remove("*");
-            } else if(!select.Contains("id")) {
-                select.Add("id");
-            }
+            } 
             select.RemoveAll(x => recursiveFields.Contains(x));
             loadOptions.Select = select.ToArray();
         } 
+        
+        if(!select.Contains("id")) {
+            select.Add("id");
+        }
+        select.RemoveAll(x => _ignoredFields.Contains(x));
         
         var result = await DataSourceLoader.LoadAsync(dbSet, loadOptions);
         return Serializer.Serialize(result);
@@ -37,6 +47,14 @@ public class NonServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext> where 
         var model = dbSet.CreateProxy();
         var values = context.Request.Form["values"];
         JsonConvert.PopulateObject(values, model, Configuration.JsonBypassConfiguration);
+        
+        ModelValidator.TryValidateModel(model, out var isValid, out var validationResults);
+
+        if(!isValid) {
+            return validationResults;
+        }
+        
+        
         await dbSet.AddAsync(model);
         await db.SaveChangesAsync();
         return Serializer.Ok();
@@ -50,6 +68,13 @@ public class NonServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext> where 
         if(model == null)
             throw new Exception("Model not found.");
         JsonConvert.PopulateObject(values, model, Configuration.JsonBypassConfiguration);
+        
+        ModelValidator.TryValidateModel(model, out var isValid, out var validationResults);
+
+        if(!isValid) {
+            return validationResults;
+        }
+        
         await db.SaveChangesAsync();
         return Serializer.Ok();
     }

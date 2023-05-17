@@ -24,36 +24,8 @@ public class DynamicContext : DbContext {
     }
 
     private async Task<List<Func<Task>>> OnSaving(AsyncServiceScope scope) {
-        var entries = ChangeTracker.Entries().AsParallel().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).Select(entityEntry => {
-            var entity = entityEntry.Entity;
-            var type = Unproxy(entity.GetType());
-            var state = entityEntry.State;
-            var serviceInfos = Configuration.Listeners.Where(x => x.ListenerInfo.ModelType.IsAssignableTo(type) || x.ListenerInfo.ModelType.IsAssignableFrom(type)).ToList();
-            var functions = new List<Func<Task<Func<Task>>>>();
-            foreach (var info in serviceInfos) {
-                if(scope.ServiceProvider.GetService(info.ServiceType) is not IListenerService service)
-                    throw new Exception($"Service {info.ServiceType} is not a IListenerService");
-                functions.Add(async () => await service!.Handle(entity, info.ListenerInfo.Configuration, state, this));
-            }
-            return functions;
-        }).Aggregate(new List<Func<Task<Func<Task>>>>(), (list, funcs) => {
-            list.AddRange(funcs);
-            return list;
-        });
-        var onSaved = new List<Func<Task>>();
-        foreach (var function in entries) {
-            var savedHandle = await function();
-            if (savedHandle != null) {
-                onSaved.Add(savedHandle);
-            }
-        }
-        return onSaved;
+        return await new EntityHandler(scope, ChangeTracker, this).OnSaving();
     }
-    
-    private static Type Unproxy(Type type) {
-        return type.Namespace == "Castle.Proxies" ? type.BaseType : type;
-    }
-    
 }
 
 public static class DynamicExtensions {

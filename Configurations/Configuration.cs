@@ -1,6 +1,9 @@
-﻿using System.IO.Compression;
+﻿using System.Globalization;
+using System.IO.Compression;
 using DynamicApi.Routes;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -60,6 +63,21 @@ public static class Configuration {
             options.Limits.MaxRequestBodySize =  int.MaxValue;
         });
         
+        
+        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+        
+        builder.Services.Configure<RequestLocalizationOptions>(ops =>
+        {
+            ops.DefaultRequestCulture = new RequestCulture("es-CO");
+            ops.SupportedCultures = new List<CultureInfo> { new("es-CO") };
+            ops.SupportedUICultures = new List<CultureInfo> { new("es-CO") };
+
+            ops.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider());
+        });
+        
+        builder.Services.AddControllers().AddDataAnnotationsLocalization();
+
         builder.Services.Configure<IISServerOptions>(options => {
             options.MaxRequestBodySize = int.MaxValue;
         });
@@ -118,7 +136,19 @@ public static class Configuration {
         if (!app.Environment.IsDevelopment()){
             app.UseHsts();
         }
+        
+ 
+        var localizationOptions = new RequestLocalizationOptions {
+            DefaultRequestCulture = new RequestCulture("es-CO"),
+            SupportedCultures = new List<CultureInfo> { new("es-CO") },
+            SupportedUICultures = new List<CultureInfo> { new("es-CO") }
+        };
+        
+        CultureInfo culture = new CultureInfo("es-CO");
+        Thread.CurrentThread.CurrentCulture = culture;
+        Thread.CurrentThread.CurrentUICulture = culture;
 
+        app.UseRequestLocalization(localizationOptions);
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
@@ -136,9 +166,21 @@ public static class Configuration {
         if (applicationDbContext == null) throw new Exception("ApplicationDbContext is null");
         logger.LogInformation("Starting server...");
         applicationDbContext.Database.Migrate();
-        foreach (var defaultValue in defaultValues) {
-            defaultValue(applicationDbContext);
+        
+
+        try {
+            applicationDbContext.Database.EnsureCreated();
+            applicationDbContext.Database.BeginTransaction();
+            foreach (var defaultValue in defaultValues) {
+                defaultValue(applicationDbContext);
+            }
+            applicationDbContext.Database.CommitTransaction();
+        } catch (Exception e) {
+            applicationDbContext.Database.RollbackTransaction();
+            logger.LogError(e, "Error al crear las tablas");
+            throw;
         }
+       
         applicationDbContext.Database.ExecuteSqlRaw("SET TIME ZONE 'America/Bogota';");
         var timezone = applicationDbContext.Database.ExecuteSqlRaw("SELECT current_setting('TIMEZONE');");
         logger.LogWarning($"Timezone DB: {timezone}");

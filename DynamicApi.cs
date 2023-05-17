@@ -2,6 +2,7 @@
 using DynamicApi.EntityFramework;
 using DynamicApi.Helpers;
 using DynamicApi.Routes;
+using NLog.Extensions.Logging;
 using Route=DynamicApi.Routes.Route;
 
 namespace DynamicApi; 
@@ -13,11 +14,24 @@ public class DynamicApi<TDbContext> where TDbContext : DynamicContext {
     private readonly WebApplicationBuilder _builder;
     private readonly Action<WebApplication, ILogger<DynamicApi<TDbContext>>> _preStart;
     private ILogger<DynamicApi<TDbContext>> _logger;
+    
 
     public DynamicApi(Action<RouteBuilder<TDbContext>> routeBuilderFn, WebApplicationBuilder builder, Action<WebApplication, ILogger<DynamicApi<TDbContext>>> preStart = null) {
-        using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder.SetMinimumLevel(LogLevel.Trace).AddConsole());
+        var nlog = File.Exists("nlog.config");
+        
+        using var loggerFactory = LoggerFactory.Create(loggingBuilder => {
+            loggingBuilder.SetMinimumLevel(LogLevel.Trace).AddConsole();
+
+            if(nlog) {
+                loggingBuilder.SetMinimumLevel(LogLevel.Trace).AddNLog();
+            }
+        });
+        
         _logger = loggerFactory.CreateLogger<DynamicApi<TDbContext>>();
-       
+
+        if(nlog) {
+            _logger.LogInformation("NLog enabled");
+        }
         
         var routeBuilder = new RouteBuilder<TDbContext>(
             _routes = new List<Route>(), 

@@ -28,9 +28,9 @@ public class ServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext> where TDb
     public override void Load(WebApplication application, ILogger logger) {
         var nonService = new NonServiceRoutes<T, TDbContext>(Name, DbSet);
         application.MapGet(Name, nonService.Get);
-        application.MapGet(Name, nonService.Post);
-        application.MapGet(Name, nonService.Put);
-        application.MapGet(Name, nonService.Delete);
+        application.MapPost(Name, nonService.Post);
+        application.MapPut(Name, nonService.Put);
+        application.MapDelete(Name, nonService.Delete);
         logger.LogInformation($"Loaded {Name}");
 
     }

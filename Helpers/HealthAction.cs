@@ -5,10 +5,10 @@ namespace DynamicApi.Helpers;
 
 public class HealthAction  : IActionService<object>{
 
-    public async Task<object> OnQuery(object input, HttpContext httpContext) {
-        return new {
+    public Task<object> OnQuery(object input, HttpContext httpContext) {
+        return Task.FromResult<object>(new {
             Status = "OK"
-        };
+        });
     }
 
     public SerializeType SerializeType => SerializeType.STANDARD;

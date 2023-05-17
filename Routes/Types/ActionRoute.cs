@@ -1,5 +1,7 @@
-﻿using DynamicApi.Serializers;
+﻿using System.ComponentModel.DataAnnotations;
+using DynamicApi.Serializers;
 using DynamicApi.Services;
+using DynamicApi.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -19,12 +21,19 @@ public class ActionRoute<TIn, TService> : Route where TService : IActionService<
         }*/
 
         var newInstance = string.IsNullOrEmpty(values) ? Activator.CreateInstance<TIn>() : JsonConvert.DeserializeObject<TIn>(values);
+        
+        ModelValidator.TryValidateModel(newInstance, out var isValid, out var validationResults);
+
+        if(!isValid) {
+            return validationResults;
+        }
+        
         try {
             var result = await service.OnQuery(newInstance, httpContext);
             return Serializer.Serialize(result, service.SerializeType);
         } catch(Exception e) {
             Console.WriteLine(e);
-            return Results.BadRequest(e);
+            return Results.BadRequest(new { error = e.Message });
         }
     }
 

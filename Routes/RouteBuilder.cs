@@ -66,7 +66,7 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
         var serviceType = typeof(TService);
         var configuration = serviceType.GetProperty("Configuration", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) as ListenerConfiguration;
         if(configuration == null)
-            throw new Exception("Could not find configuration");
+            throw new Exception("Could not find configuration, in order to use this method you must have a static property called Configuration in your service");
         var listenerInfo = new ListenerInfo(typeof(T), configuration);
         var route = new NonServiceRoutes<T, TDbContext>(name, dbSet);
         addRoute(route);

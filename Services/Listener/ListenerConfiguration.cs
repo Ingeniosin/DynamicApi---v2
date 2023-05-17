@@ -6,7 +6,9 @@ public class ListenerConfiguration {
 
     public bool OnUpdating { get; set; }
     public bool OnUpdated { get; set; }
-
+    
     public bool OnDeleting { get; set; }
     public bool OnDeleted { get; set; }
+    
+    public bool Normalize { get; set; }
 }
