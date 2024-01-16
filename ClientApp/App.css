@@ -26,6 +26,6 @@ li > .dx-treeview-item {
     justify-content: space-around !important;
 }
 
-.dx-tabpanel .dx-tabs-wrapper > *{
+.dx-tabpanel .dx-tabs-wrapper > * {
     width: 100% !important;
 }

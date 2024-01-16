@@ -1,5 +1,5 @@
-﻿namespace DynamicApi.Services.Listener; 
+﻿namespace DynamicApi.Services.Listener;
 
 public class CancelProcessException : Exception {
-    
+
 }

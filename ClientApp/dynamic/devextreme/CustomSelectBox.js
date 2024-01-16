@@ -15,7 +15,8 @@ const CustomSelectBox = (ds, name, display, references, onInitialized, onValueCh
             try {
                 data.data[references] = e.value
                 data.data[name].id = e.value
-            } catch (error) {}
+            } catch (error) {
+            }
             if (onValueChanged) onValueChanged(e)
         }}
     />)

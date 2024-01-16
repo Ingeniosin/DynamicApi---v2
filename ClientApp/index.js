@@ -1,6 +1,6 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import {createRoot} from 'react-dom/client';
+import {BrowserRouter} from 'react-router-dom';
 import App from "./App";
 
 import 'bootstrap/dist/css/bootstrap.css';
@@ -9,7 +9,8 @@ import '@coreui/coreui/dist/css/coreui.min.css'
 
 import config from "devextreme/core/config"
 import deMessages from "devextreme/localization/messages/es.json";
-import { locale, loadMessages,  } from "devextreme/localization";
+import {locale, loadMessages,} from "devextreme/localization";
+
 config({
     editorStylingMode: "outlined",
     defaultCurrency: 'COP',
@@ -25,8 +26,8 @@ const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
 
 root.render(
-  <BrowserRouter basename={baseUrl}>
-    <App />
-  </BrowserRouter>
+    <BrowserRouter basename={baseUrl}>
+        <App/>
+    </BrowserRouter>
 );
 

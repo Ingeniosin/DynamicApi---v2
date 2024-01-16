@@ -1,6 +1,6 @@
 ﻿using DynamicApi.Services.Listener;
 
-namespace DynamicApi.Routes; 
+namespace DynamicApi.Routes;
 
 public class ServiceInfo {
 
@@ -17,10 +17,11 @@ public class ServiceInfo {
     public ServiceInfo(Type serviceType, bool isScoped, ListenerInfo listenerInfo) : this(serviceType, isScoped) {
         ListenerInfo = listenerInfo;
     }
+
 }
 
 public class ListenerInfo {
-    
+
     public readonly Type ModelType;
     public readonly string TypeModelName;
     public readonly ListenerConfiguration Configuration;

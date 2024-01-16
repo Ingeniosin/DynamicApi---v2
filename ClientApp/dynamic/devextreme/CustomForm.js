@@ -47,12 +47,22 @@ const setReference = (reference, instance) => {
     })
 }
 
-const CustomForm = ({children, reference, formOptions, onEnterKey, onFormDataChange, defaultFormData, onInit = () => {}, logInstance}) => {
-    const onInitialized = useCallback(async ({component: instance})  => {
+const CustomForm = ({
+                        children,
+                        reference,
+                        formOptions,
+                        onEnterKey,
+                        onFormDataChange,
+                        defaultFormData,
+                        onInit = () => {
+                        },
+                        logInstance
+                    }) => {
+    const onInitialized = useCallback(async ({component: instance}) => {
         if (reference instanceof Array) reference.filter(x => x).forEach(ref => setReference(ref, instance));
         else setReference(reference, instance);
         await onInit(reference);
-        if(logInstance)
+        if (logInstance)
             console.log(instance)
     }, []);
     const onFieldDataChanged = useCallback(() => {
@@ -60,7 +70,8 @@ const CustomForm = ({children, reference, formOptions, onEnterKey, onFormDataCha
     }, []);
 
     return (
-        <Form  {...formOptions}  onFieldDataChanged={onFieldDataChanged} defaultFormData={defaultFormData} labelMode={"floating"} onEditorEnterKey={onEnterKey} onInitialized={onInitialized} >
+        <Form  {...formOptions} onFieldDataChanged={onFieldDataChanged} defaultFormData={defaultFormData}
+               labelMode={"floating"} onEditorEnterKey={onEnterKey} onInitialized={onInitialized}>
             {children}
         </Form>
     );

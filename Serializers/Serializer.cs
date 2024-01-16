@@ -1,38 +1,42 @@
 ﻿namespace DynamicApi.Serializers;
 
 public enum SerializeType {
+
     STANDARD,
     FILE,
     NONE,
     CUSTOM,
-    ERROR,
+    ERROR
+
 }
 
 public static class Serializer {
-    private readonly static Dictionary<SerializeType, ISerializer> Serializers = new(){
+
+    private static readonly Dictionary<SerializeType, ISerializer> Serializers = new() {
         { SerializeType.STANDARD, new StandardSerializer() },
         { SerializeType.FILE, new FileSerializer() },
         { SerializeType.NONE, new NoneSerializer() },
         { SerializeType.CUSTOM, new CustomSerializer() },
-        { SerializeType.ERROR, new ErrorSerializer() },
+        { SerializeType.ERROR, new ErrorSerializer() }
 
     };
 
     public static IResult Ok(SerializeType serializeType = SerializeType.NONE) {
-        return Serialize((object) null, serializeType);
+        return Serialize((object)null, serializeType);
     }
 
     public static IResult Serialize<TOut>(TOut obj, SerializeType serializeType = SerializeType.STANDARD) {
-        try{
+        try {
             var serializer = Serializers[serializeType];
             return serializer!.Serialize(obj);
-        } catch (Exception e){
+        } catch (Exception e) {
             return Results.Json(new {
                 error = e.Message,
                 stackTrace = e.StackTrace,
                 innerException = e.InnerException?.Message,
-                isValidationException = false,
+                isValidationException = false
             }, contentType: "application/json", statusCode: 400);
         }
     }
+
 }

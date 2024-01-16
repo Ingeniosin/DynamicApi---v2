@@ -25,30 +25,35 @@ const emailRule = {type: 'email', message: 'El campo debe ser un email válido'}
 const useCustomGrid = (config: DataGridConfig) => {
     const divRef = useRef(null);
     const settings = useMemo(() => getGridProps(config), [config]);
-    const columns = useMemo(() =>  settings.cols.map((col: Column) => <Column  {...col} key={col.dataField}/>), [settings.cols]);
-    const childs = useMemo(() =>  settings.childs(), [settings.childs]);
+    const columns = useMemo(() => settings.cols.map((col: Column) => <Column  {...col}
+                                                                              key={col.dataField}/>), [settings.cols]);
+    const childs = useMemo(() => settings.childs(), [settings.childs]);
 
     useEffect(() => {
         const updateInterval = settings.updateInterval;
         if (!updateInterval) return;
-        let interval = setInterval(async () => {await settings.dataSource.reload();}, updateInterval);
+        let interval = setInterval(async () => {
+            await settings.dataSource.reload();
+        }, updateInterval);
         const observer = new IntersectionObserver(
             ([entry]) => {
                 const visible = entry.isIntersecting;
-                if(!visible) {
+                if (!visible) {
                     clearInterval(interval);
                     interval = null;
                     return;
                 }
-                if(interval) return;
-                interval = setInterval(async () => {await settings.dataSource.reload();}, updateInterval);
+                if (interval) return;
+                interval = setInterval(async () => {
+                    await settings.dataSource.reload();
+                }, updateInterval);
             },
         )
         observer.observe(divRef.current)
-        
+
         return () => clearInterval(interval)
     }, []);
-    
+
     return (
         <div ref={divRef}>
             <DataGrid {...settings}>
@@ -57,12 +62,27 @@ const useCustomGrid = (config: DataGridConfig) => {
                 <Export enabled={true}/>
             </DataGrid>
         </div>
-    
+
     );
 }
 
-const getGridProps = (config: DataGridConfig): IDataGridOptions => {
-    let {defaultValues, childs, updateInterval, otherConfigs = {}, reference = {}, columnChooser = false, allowAdding = true, allowDeleting = true, allowUpdating = true, dataSource = [], columns, editorMode = 'cell'} = config;
+const getGridProps = (config: DataGridConfig)
+:
+IDataGridOptions => {
+    let {
+        defaultValues,
+        childs,
+        updateInterval,
+        otherConfigs = {},
+        reference = {},
+        columnChooser = false,
+        allowAdding = true,
+        allowDeleting = true,
+        allowUpdating = true,
+        dataSource = [],
+        columns,
+        editorMode = 'cell'
+    } = config;
     const isApi = typeof dataSource === 'object' && dataSource.api;
     if (isApi) {
         dataSource = getDsOptions(dataSource.api, {
@@ -71,11 +91,11 @@ const getGridProps = (config: DataGridConfig): IDataGridOptions => {
             paginate: true,
             pageSize: dataSource.pageSize,
         })
-        
+
     }
 
     columns = columns.map(column => {
-        if(column.format) {
+        if (column.format) {
             set(column, 'editorOptions.format', column.format);
         }
 
@@ -110,7 +130,7 @@ const getGridProps = (config: DataGridConfig): IDataGridOptions => {
                 clearFilter: () => component.clearFilter(),
                 clearSelection: () => component.clearSelection(),
                 data: () => component.getDataSource().items(),
-            };            
+            };
         },
         updateInterval,
         showColumnHeaders: true,
@@ -127,7 +147,7 @@ const getGridProps = (config: DataGridConfig): IDataGridOptions => {
             paging: true,
             sorting: true,
         },
-       /* allowColumnResizing: true,*/
+        /* allowColumnResizing: true,*/
         highlightChanges: false,
         activeStateEnabled: false,
         cellHintEnabled: false,

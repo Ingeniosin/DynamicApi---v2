@@ -10,13 +10,16 @@ public class EntityStateHandler<T, TDbContext> where TDbContext : DynamicContext
     protected readonly T _model;
     protected readonly TDbContext _context;
 
-    public EntityStateHandler(ListenerConfiguration configuration, T model, TDbContext context, ListenerService<T, TDbContext> service) {
+    public EntityStateHandler(ListenerConfiguration configuration, T model, TDbContext context,
+        ListenerService<T, TDbContext> service) {
         _configuration = configuration;
         _model = model;
         _context = context;
         _service = service;
     }
 
-    public virtual Task<Func<Task>> Handle() => Task.FromResult<Func<Task>>(null);
+    public virtual Task<Func<Task>> Handle() {
+        return Task.FromResult<Func<Task>>(null);
+    }
 
 }

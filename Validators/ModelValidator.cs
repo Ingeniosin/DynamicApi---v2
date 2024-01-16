@@ -1,29 +1,41 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using DynamicApi.EntityFramework;
 using DynamicApi.Serializers;
 
-namespace DynamicApi.Validators; 
+namespace DynamicApi.Validators;
 
 public class ModelValidator {
 
     public static void TryValidateModel(object model, out bool isValid, out IResult result) {
         isValid = true;
         result = null;
-        
-        var validationContext = new ValidationContext(model);
-        var validationResults = new List<ValidationResult>();
-        Validator.TryValidateObject(model, validationContext, validationResults, true);
 
-        if(validationResults.Count == 0) {
+        var validator = new DataAnnotationsValidator.DataAnnotationsValidator();
+        var validationResults = new List<ValidationResult>();
+
+        validator.TryValidateObjectRecursive(model, validationResults);
+        var type = EntityHandler.Unproxy(model.GetType());
+        var results = validationResults.Where(validationResult => {
+                var first = type.Name + "." + validationResult.MemberNames.First();
+                var memberNames = first.Split(".");
+                var lastMember = memberNames.Last();
+                var virtualMember = lastMember.Replace("Id", "");
+                return !memberNames.Contains(virtualMember);
+            })
+            .ToList();
+
+        if(results.Count == 0) {
             return;
         }
-        
-        var firstError = validationResults.FirstOrDefault();
-        
+
         isValid = false;
         result = Serializer.Serialize(new {
-            message = firstError?.ErrorMessage,
+            error = "An error occurred while validating the model.",
+            details = results.Select(x => new {
+                x.ErrorMessage,
+                x.MemberNames
+            })
         }, SerializeType.ERROR);
     }
-    
 
 }

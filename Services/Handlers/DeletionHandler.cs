@@ -1,11 +1,13 @@
 using DynamicApi.EntityFramework;
 using DynamicApi.Services.Listener;
 
-namespace DynamicApi.Services.Handlers; 
+namespace DynamicApi.Services.Handlers;
 
-public class DeletionHandler<T, TDbContext> : EntityStateHandler<T, TDbContext> where TDbContext : DynamicContext where T : class {
+public class DeletionHandler<T, TDbContext> : EntityStateHandler<T, TDbContext>
+    where TDbContext : DynamicContext where T : class {
 
-    public DeletionHandler(ListenerConfiguration configuration, T model, TDbContext context, ListenerService<T, TDbContext> service) : base(configuration, model, context, service) {
+    public DeletionHandler(ListenerConfiguration configuration, T model, TDbContext context,
+        ListenerService<T, TDbContext> service) : base(configuration, model, context, service) {
     }
 
     public override async Task<Func<Task>> Handle() {

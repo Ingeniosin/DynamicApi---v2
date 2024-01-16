@@ -1,8 +1,7 @@
 ﻿using DynamicApi.Configurations;
-using DynamicApi.Services.Listener;
 using Microsoft.EntityFrameworkCore;
 
-namespace DynamicApi.EntityFramework; 
+namespace DynamicApi.EntityFramework;
 
 public class DynamicContext : DbContext {
 
@@ -13,9 +12,11 @@ public class DynamicContext : DbContext {
         await using var scope = Configuration.ServiceProvider.CreateAsyncScope();
         var onSaving = await OnSaving(scope);
         var saveChangesAsync = await SaveChangesWithOutHandle();
+
         foreach (var func in onSaving) {
             await func();
         }
+
         return saveChangesAsync;
     }
 
@@ -26,10 +27,13 @@ public class DynamicContext : DbContext {
     private async Task<List<Func<Task>>> OnSaving(AsyncServiceScope scope) {
         return await new EntityHandler(scope, ChangeTracker, this).OnSaving();
     }
+
 }
 
 public static class DynamicExtensions {
-    public static IQueryable<object> Set (this DbContext _context, Type t) {
+
+    public static IQueryable<object> Set(this DbContext _context, Type t) {
         return (IQueryable<object>)_context.GetType().GetMethod("Set").MakeGenericMethod(t).Invoke(_context, null);
     }
+
 }

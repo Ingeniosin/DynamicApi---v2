@@ -6,7 +6,8 @@ namespace DynamicApi.Services.Handlers;
 
 public class HandlerFactory<T, TDbContext> where TDbContext : DynamicContext where T : class {
 
-    public static EntityStateHandler<T, TDbContext> CreateHandler(EntityState state, ListenerConfiguration configuration, T typedModel, TDbContext context, ListenerService<T, TDbContext> service) {
+    public static EntityStateHandler<T, TDbContext> CreateHandler(EntityState state,
+        ListenerConfiguration configuration, T typedModel, TDbContext context, ListenerService<T, TDbContext> service) {
         return state switch {
             EntityState.Added => new CreationHandler<T, TDbContext>(configuration, typedModel, context, service),
             EntityState.Modified => new ModificationHandler<T, TDbContext>(configuration, typedModel, context, service),

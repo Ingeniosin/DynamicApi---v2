@@ -4,12 +4,12 @@ import {ButtonItem} from "devextreme-react/form";
 import {toast} from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 
-const StoredForm = ({ defaultKey, store, onSubmit, onPreSubmit, children, formReference = {}, ...props}) => {
+const StoredForm = ({defaultKey, store, onSubmit, onPreSubmit, children, formReference = {}, ...props}) => {
     const formRef = useRef();
     const [data, setData] = useState(null);
     useEffect(() => {
         (async () => {
-            if(!defaultKey) {
+            if (!defaultKey) {
                 setData({});
                 return;
             }
@@ -25,7 +25,7 @@ const StoredForm = ({ defaultKey, store, onSubmit, onPreSubmit, children, formRe
             const {isValid, instance, getData, setData} = formRef.current;
             const data = getData();
             if (onPreSubmit) await onPreSubmit(data);
-            if (!isValid()){
+            if (!isValid()) {
                 toast.error("Los datos ingresados no son válidos.");
                 return;
             }
@@ -33,10 +33,10 @@ const StoredForm = ({ defaultKey, store, onSubmit, onPreSubmit, children, formRe
             toast.loading("Enviando datos...");
             try {
                 const responseData = data.id && data.id !== 0 ? await store.update(data.id, data) : await store.insert(data);
-/*
-                setData({...data, ...responseData});
-*/
-                if(onSubmit) await onSubmit(responseData);
+                /*
+                                setData({...data, ...responseData});
+                */
+                if (onSubmit) await onSubmit(responseData);
                 toast.success("Datos actualizados con éxito.");
             } catch (e) {
                 toast.success("Ocurrió un error al enviar los datos: " + e.message);
@@ -45,7 +45,8 @@ const StoredForm = ({ defaultKey, store, onSubmit, onPreSubmit, children, formRe
             formReference.current.isSubmitted = true;
         }
     }), [])
-    if (!data) return <div className="m-5 d-flex flex-column align-items-center justify-content-center"><LoadingSpinner/></div>
+    if (!data) return <div className="m-5 d-flex flex-column align-items-center justify-content-center">
+        <LoadingSpinner/></div>
     return (
         <CustomForm formOptions={{...props, defaultFormData: data}} reference={[formRef, formReference]}>
             {children}

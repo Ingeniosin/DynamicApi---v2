@@ -6,9 +6,11 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace DynamicApi.Services.Handlers;
 
-public class ModificationHandler<T, TDbContext> : EntityStateHandler<T, TDbContext> where TDbContext : DynamicContext where T : class {
+public class ModificationHandler<T, TDbContext> : EntityStateHandler<T, TDbContext>
+    where TDbContext : DynamicContext where T : class {
 
-    public ModificationHandler(ListenerConfiguration _configuration, T model, TDbContext context, ListenerService<T, TDbContext> service) : base(_configuration, model, context, service) {
+    public ModificationHandler(ListenerConfiguration _configuration, T model, TDbContext context,
+        ListenerService<T, TDbContext> service) : base(_configuration, model, context, service) {
     }
 
     public override async Task<Func<Task>?> Handle() {
@@ -19,7 +21,10 @@ public class ModificationHandler<T, TDbContext> : EntityStateHandler<T, TDbConte
         var oldModel = getOldModel(out var entityEntry);
 
         var changedFields = GetChangedFields();
-        bool IsChanged(string field) => changedFields.Contains(field.ToLower());
+
+        bool IsChanged(string field) {
+            return changedFields.Contains(field.ToLower());
+        }
 
         if(_configuration.OnUpdating) {
             await _service.OnUpdating(_model, oldModel, IsChanged, _context);
@@ -62,4 +67,5 @@ public class ModificationHandler<T, TDbContext> : EntityStateHandler<T, TDbConte
             entry.State = EntityState.Detached;
         }
     }
+
 }

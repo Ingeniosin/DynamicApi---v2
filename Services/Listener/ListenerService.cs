@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DynamicApi.Services.Listener;
 
-public abstract class ListenerService<T, TDbContext> : IListenerService where T : class where TDbContext : DynamicContext{
+public abstract class ListenerService<T, TDbContext> : IListenerService
+    where T : class where TDbContext : DynamicContext {
 
     #region methods
 
@@ -37,9 +38,10 @@ public abstract class ListenerService<T, TDbContext> : IListenerService where T 
     }
 
     #endregion
-    
-    
-    public async Task<Func<Task>> Handle(object model, ListenerConfiguration configuration, EntityState state, DynamicContext context) {
+
+
+    public async Task<Func<Task>> Handle(object model, ListenerConfiguration configuration, EntityState state,
+        DynamicContext context) {
         var typpedModel = (T)model;
         var dynamicDbContext = (TDbContext)context;
 
@@ -47,10 +49,9 @@ public abstract class ListenerService<T, TDbContext> : IListenerService where T 
             await Normalize(typpedModel, dynamicDbContext);
         }
 
-        var handler = HandlerFactory<T, TDbContext>.CreateHandler(state, configuration, typpedModel, dynamicDbContext, this);
+        var handler =
+            HandlerFactory<T, TDbContext>.CreateHandler(state, configuration, typpedModel, dynamicDbContext, this);
         return await handler.Handle();
     }
-
- 
 
 }

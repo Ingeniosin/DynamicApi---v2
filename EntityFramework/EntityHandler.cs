@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace DynamicApi.EntityFramework;
 
 public class EntityHandler {
+
     private readonly AsyncServiceScope _scope;
     private readonly ChangeTracker _changeTracker;
     private readonly DynamicContext _context;
@@ -23,7 +24,8 @@ public class EntityHandler {
     }
 
     private IEnumerable<EntityEntry> GetEntityEntries() {
-        return _changeTracker.Entries().AsParallel().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList();
+        return _changeTracker.Entries().AsParallel()
+            .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted).ToList();
     }
 
     private List<Func<Task<Func<Task>>>> GetEntityFunctions(IEnumerable<EntityEntry> entityEntries) {
@@ -34,7 +36,8 @@ public class EntityHandler {
         var entity = entityEntry.Entity;
         var type = Unproxy(entity.GetType());
         var state = entityEntry.State;
-        var serviceInfos = Configuration.Listeners.Where(x => x.ListenerInfo.ModelType.IsAssignableTo(type) || x.ListenerInfo.ModelType.IsAssignableFrom(type)).ToList();
+        var serviceInfos = Configuration.Listeners.Where(x =>
+            x.ListenerInfo.ModelType.IsAssignableTo(type) || x.ListenerInfo.ModelType.IsAssignableFrom(type)).ToList();
 
         foreach (var info in serviceInfos) {
             if(_scope.ServiceProvider.GetService(info.ServiceType) is not IListenerService service) {
@@ -58,8 +61,9 @@ public class EntityHandler {
 
         return onSaved;
     }
-    
-    private static Type Unproxy(Type type) {
+
+    public static Type Unproxy(Type type) {
         return type.Namespace == "Castle.Proxies" ? type.BaseType : type;
     }
+
 }

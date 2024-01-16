@@ -1,6 +1,7 @@
-﻿namespace DynamicApi.Routes; 
+﻿namespace DynamicApi.Routes;
 
 public abstract class Route {
+
     private string _name;
 
     public string Name {
@@ -13,4 +14,5 @@ public abstract class Route {
     }
 
     public abstract void Load(WebApplication application, ILogger logger);
+
 }

@@ -29,8 +29,9 @@ export const getDsOptionsLookup = (url, options) => {
     }
 }
 
-export const getDsLookupForm = (api, options  = {}, display = 'nombre', key = 'id') => {
-    options = {...{
+export const getDsLookupForm = (api, options = {}, display = 'nombre', key = 'id') => {
+    options = {
+        ...{
             select: [key, display],
             valueExpr: key,
             displayExpr: display,
@@ -42,7 +43,8 @@ export const getDsLookupForm = (api, options  = {}, display = 'nombre', key = 'i
             searchEnabled: true,
             searchTimeout: 10,
             ...options
-        }}
+        }
+    }
 
     return {
         dataSource: getDsOptions(api, {
@@ -77,8 +79,9 @@ export const getDsLookup = (api, options, display = 'nombre', key = 'id') => {
 }
 
 
-export const getDsLookupArray = (arrayStore, options  = {}, display = 'nombre', key = 'id', ) => {
-    options = {...{
+export const getDsLookupArray = (arrayStore, options = {}, display = 'nombre', key = 'id',) => {
+    options = {
+        ...{
             select: [key, display],
             valueExpr: key,
             displayExpr: display,
@@ -90,7 +93,8 @@ export const getDsLookupArray = (arrayStore, options  = {}, display = 'nombre', 
             searchEnabled: true,
             searchTimeout: 10,
             ...options
-        }}
+        }
+    }
 
     return {
         dataSource: arrayStore,
@@ -101,7 +105,7 @@ export const getDsLookupArray = (arrayStore, options  = {}, display = 'nombre', 
 export const getArray = (array, pageSize = 8, key = "Id") => {
     return {
         store: new ArrayStore({
-            key: array.length === 0 ? null :  typeof array[0] === 'string' ? null : key,
+            key: array.length === 0 ? null : typeof array[0] === 'string' ? null : key,
             data: array,
         }),
         paginate: true,
@@ -112,7 +116,7 @@ export const getArray = (array, pageSize = 8, key = "Id") => {
 export const getDs = (api, customOptions = {}) => {
     const url = apiUrl + api.toLowerCase();
     return createStore({
-        key:  'id',
+        key: 'id',
         loadUrl: url,
         insertUrl: url,
         updateUrl: url,
@@ -130,7 +134,7 @@ export const insertFile = async (api, values, file) => {
     let formData = new FormData();
     formData.append("file", file, file.name);
     formData.append("values", JSON.stringify(values));
-    let response = await fetch('/api/'+api.toString().toLowerCase(), {method: 'POST', body: formData,});
+    let response = await fetch('/api/' + api.toString().toLowerCase(), {method: 'POST', body: formData,});
     return await response.json();
 };
 
@@ -138,10 +142,10 @@ export const insertFiles = async (api, values, files) => {
     let formData = new FormData();
     console.log(files)
     files.forEach((file, index) => {
-        formData.append("file["+index+"]", file, file.name);
+        formData.append("file[" + index + "]", file, file.name);
     });
     formData.append("values", JSON.stringify(values));
-    let response = await fetch('/api/'+api.toString().toLowerCase(), {method: 'POST', body: formData,});
+    let response = await fetch('/api/' + api.toString().toLowerCase(), {method: 'POST', body: formData,});
     return await response.json();
 };
 
@@ -152,7 +156,7 @@ export const insertFiles2 = async (api, values, objFiles) => {
         formData.append(key, file, file.name);
     });
     formData.append("values", JSON.stringify(values));
-    let response = await fetch('/api/'+api.toString().toLowerCase(), {method: 'POST', body: formData,});
+    let response = await fetch('/api/' + api.toString().toLowerCase(), {method: 'POST', body: formData,});
     return await response.json();
 };
 

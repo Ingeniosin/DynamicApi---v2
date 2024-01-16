@@ -1,11 +1,11 @@
 ﻿import CustomSelectBox from "./CustomSelectBox";
 
-const CustomColumn = (ds, name, convertName = name+"Id") => {
+const CustomColumn = (ds, name, convertName = name + "Id") => {
     return {
-        dataField:convertName,
+        dataField: convertName,
         editCellComponent: CustomSelectBox(ds, name),
         lookup: {dataSource: ds, displayExpr: "name", valueExpr: "id"},
-        calculateDisplayValue:data => data[name]?.name
+        calculateDisplayValue: data => data[name]?.name
     };
 };
 

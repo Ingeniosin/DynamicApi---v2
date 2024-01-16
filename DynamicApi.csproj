@@ -1,42 +1,43 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>disable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.2.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.21" />
-        <PackageReference Include="Panic.StringUtils" Version="1.0.1" />
-        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-        <PackageReference Include="Westwind.Utilities" Version="3.1.18" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-        <PackageReference Include="DevExtreme.AspNet.Data" Version="2.9.1" />
-        <PackageReference Include="Microsoft.Extensions.Localization" Version="7.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="7.0.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PackageReference Include="DataAnnotationsValidator" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.21"/>
+        <PackageReference Include="Panic.StringUtils" Version="1.0.1"/>
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0"/>
+        <PackageReference Include="Westwind.Utilities" Version="4.0.11"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="DevExtreme.AspNet.Data" Version="3.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.15"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="7.0.15"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.15">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.3">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.15"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.15"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.15">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.3" />
-        <PackageReference Include="Logtail" Version="0.2.2" />
-        <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11"/>
+        <PackageReference Include="Logtail" Version="0.2.6"/>
+        <PackageReference Include="NLog.Extensions.Logging" Version="5.3.8"/>
 
 
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="nlog.config" CopyToOutputDirectory="PreserveNewest" />
+        <None Update="nlog.config" CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 
 </Project>

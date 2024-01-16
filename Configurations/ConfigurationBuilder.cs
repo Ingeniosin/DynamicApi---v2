@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace DynamicApi.Configurations;
 
@@ -8,7 +7,7 @@ public class ConfigurationBuilder {
 
     [Required(ErrorMessage = "The connection string is required, please use 'SetConnectionString' method.")]
     public string ConnectionString { get; set; }
-    
+
     [Required(ErrorMessage = "The database provider is required, please use 'SetDatabaseProvider' method.")]
     public Action<DbContextOptionsBuilder> DbContextOptionsBuilder { get; set; }
 
@@ -23,24 +22,23 @@ public class ConfigurationBuilder {
             var databasePort = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "5432";
 
             if(databaseHost != null && databasePassword != null) {
-                ConnectionString = $"User ID={databaseUser};Password={databasePassword};Host={databaseHost};Port={databasePort};Database={databaseName};Pooling=true;";
+                ConnectionString =
+                    $"User ID={databaseUser};Password={databasePassword};Host={databaseHost};Port={databasePort};Database={databaseName};Pooling=true;";
             }
         }
-        
+
         if(DbContextOptionsBuilder == null) {
-            DbContextOptionsBuilder = x => {
-                x.UseLazyLoadingProxies().UseNpgsql(ConnectionString);
-            };
+            DbContextOptionsBuilder = x => { x.UseLazyLoadingProxies().UseNpgsql(ConnectionString); };
         }
-        
+
     }
-    
+
     public void Build() {
         Validate();
     }
 
     private void Validate() {
-        var context = new ValidationContext(this, serviceProvider: null, items: null);
+        var context = new ValidationContext(this, null, null);
         var results = new List<ValidationResult>();
         var isValid = Validator.TryValidateObject(this, context, results, true);
 
@@ -48,7 +46,9 @@ public class ConfigurationBuilder {
             return;
         }
 
-        var message = results.Aggregate("Error validating ConfigurationBuilder: ", (current, validationResult) => current + validationResult.ErrorMessage + " | ");
+        var message = results.Aggregate("Error validating ConfigurationBuilder: ",
+            (current, validationResult) => current + validationResult.ErrorMessage + " | ");
         throw new Exception(message);
     }
+
 }

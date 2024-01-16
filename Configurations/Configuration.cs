@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Route = DynamicApi.Routes.Route;
 
 namespace DynamicApi.Configurations;
@@ -22,13 +24,19 @@ public static class Configuration {
     public static readonly JsonSerializerSettings JsonBypassConfiguration = new() {
         Formatting = Formatting.None,
         ContractResolver = new CustomContractResolver { Bypass = true },
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        Converters = new List<JsonConverter>
+            { new StringEnumConverter { NamingStrategy = new DefaultNamingStrategy() } },
+        NullValueHandling = NullValueHandling.Ignore
     };
 
     private static readonly JsonSerializerSettings JsonConfigurations = new() {
         Formatting = Formatting.None,
         ContractResolver = new CustomContractResolver(),
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        Converters = new List<JsonConverter>
+            { new StringEnumConverter { NamingStrategy = new DefaultNamingStrategy() } },
+        NullValueHandling = NullValueHandling.Ignore
     };
 
     public static IServiceProvider ServiceProvider { get; set; }

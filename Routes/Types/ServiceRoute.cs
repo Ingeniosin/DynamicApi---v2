@@ -5,12 +5,13 @@ using DynamicApi.Services.Listener;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace DynamicApi.Routes.Types; 
+namespace DynamicApi.Routes.Types;
 
-public class ServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext> where TDbContext : DynamicContext where T : class {
+public class ServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext>
+    where TDbContext : DynamicContext where T : class {
 
     private ListenerConfiguration ListenerConfiguration;
-    
+
     public async Task<IResult> Post(HttpContext context, TDbContext db) {
         var dbSet = DbSet(db);
         var model = dbSet.CreateProxy();
@@ -20,8 +21,9 @@ public class ServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext> where TDb
         await db.SaveChangesAsync();
         return Serializer.Ok();
     }
-    
-    public ServiceRoutes(string name, Func<TDbContext, DbSet<T>> dbSet, ListenerConfiguration listenerConfiguration) : base(name, dbSet) {
+
+    public ServiceRoutes(string name, Func<TDbContext, DbSet<T>> dbSet, ListenerConfiguration listenerConfiguration) :
+        base(name, dbSet) {
         ListenerConfiguration = listenerConfiguration;
     }
 
@@ -34,4 +36,5 @@ public class ServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext> where TDb
         logger.LogInformation($"Loaded {Name}");
 
     }
+
 }
