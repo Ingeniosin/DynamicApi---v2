@@ -1,7 +1,9 @@
 ﻿using DynamicApi.Configurations;
 using DynamicApi.EntityFramework;
+using DynamicApi.Exceptions;
 using DynamicApi.Helpers;
 using DynamicApi.Routes;
+using Microsoft.AspNetCore.Diagnostics;
 using NLog.Extensions.Logging;
 using Route = DynamicApi.Routes.Route;
 
@@ -57,6 +59,21 @@ public class DynamicApi<TDbContext> where TDbContext : DynamicContext {
 
     public void Start() {
         var app = Configuration.Configure(_builder, _services, _defaultValues, _logger);
+        
+        app.UseExceptionHandler(c => c.Run(async context => {
+            Exception exception = context.Features.Get<IExceptionHandlerPathFeature>().Error;
+            if(exception is ApiException apiException) {
+                context.Response.StatusCode = (int) apiException.StatusCode;
+            }
+            
+            var response = new {
+                error = exception.Message,
+                detail =  _builder.Environment.IsDevelopment() ? exception?.InnerException?.Message : null,
+                stack = _builder.Environment.IsDevelopment() ? exception.StackTrace : null,
+            };
+            await context.Response.WriteAsJsonAsync(response);
+        }));
+        
         _routes.ForEach(route => route.Load(app, _logger));
         _preStart?.Invoke(app, _logger);
         app.Run();

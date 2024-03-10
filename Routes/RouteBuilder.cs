@@ -66,9 +66,9 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
         return this;
     }
 
-    public RouteBuilder<TDbContext> addView<TService>(string name, bool isScoped) {
+    public RouteBuilder<TDbContext> addView<T, TService>(string name, bool isScoped) where T : class where TService : ViewRouteImpl {
         var serviceType = typeof(TService);
-        addRoute(new ViewRoute(name, serviceType));
+        addRoute(new ViewRoute<T>(name, serviceType));
         _services.Add(new ServiceInfo(serviceType, isScoped));
         return this;
     }

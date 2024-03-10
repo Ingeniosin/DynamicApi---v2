@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using DevExtreme.AspNet.Data;
 using DynamicApi.Configurations;
 using DynamicApi.DevExpress;

@@ -19,6 +19,10 @@ public class ModelValidator {
                 var first = type.Name + "." + validationResult.MemberNames.First();
                 var memberNames = first.Split(".");
                 var lastMember = memberNames.Last();
+                var hasVirtual = lastMember.EndsWith("Id");
+                if(!hasVirtual) {
+                    return true;
+                }
                 var virtualMember = lastMember.Replace("Id", "");
                 return !memberNames.Contains(virtualMember);
             })

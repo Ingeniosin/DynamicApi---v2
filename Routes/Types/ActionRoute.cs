@@ -1,4 +1,5 @@
-﻿using DynamicApi.Serializers;
+﻿using DynamicApi.Exceptions;
+using DynamicApi.Serializers;
 using DynamicApi.Services;
 using DynamicApi.Validators;
 using Microsoft.AspNetCore.Mvc;
@@ -24,19 +25,14 @@ public class ActionRoute<TIn, TService> : Route where TService : IActionService<
             ? Activator.CreateInstance<TIn>()
             : JsonConvert.DeserializeObject<TIn>(values);
 
-        ModelValidator.TryValidateModel(newInstance, out var isValid, out var validationResults);
+        ModelValidator.TryValidateModel(newInstance, out bool isValid, out IResult validationResults);
 
         if(!isValid) {
             return validationResults;
         }
 
-        try {
-            var result = await service.OnQuery(newInstance, httpContext);
-            return Serializer.Serialize(result, service.SerializeType);
-        } catch (Exception e) {
-            Console.WriteLine(e);
-            return Results.BadRequest(new { error = e.Message });
-        }
+        var result = await service.OnQuery(newInstance, httpContext);
+        return Serializer.Serialize(result, service.SerializeType);
     }
 
     public ActionRoute(string name) : base(name) {
