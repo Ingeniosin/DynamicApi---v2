@@ -41,7 +41,6 @@ public class NonServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext>
             }
 
             select.RemoveAll(x => recursiveFields.Contains(x));
-            loadOptions.Select = select.ToArray();
         }
 
         if(!select.Contains("id")) {
@@ -49,6 +48,8 @@ public class NonServiceRoutes<T, TDbContext> : StoredRoute<T, TDbContext>
         }
 
         select.RemoveAll(x => _ignoredFields.Contains(x));
+        loadOptions.Select = select.ToArray();
+
 
         var result = await DataSourceLoader.LoadAsync(dbSet, loadOptions);
         return Serializer.Serialize(result);

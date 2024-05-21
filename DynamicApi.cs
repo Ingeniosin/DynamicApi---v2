@@ -4,6 +4,7 @@ using DynamicApi.Exceptions;
 using DynamicApi.Helpers;
 using DynamicApi.Routes;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.FileProviders;
 using NLog.Extensions.Logging;
 using Route = DynamicApi.Routes.Route;
 
@@ -59,6 +60,19 @@ public class DynamicApi<TDbContext> where TDbContext : DynamicContext {
 
     public void Start() {
         var app = Configuration.Configure(_builder, _services, _defaultValues, _logger);
+
+        
+        
+        bool exists = Directory.Exists(Path.Combine(_builder.Environment.ContentRootPath, "Static"));
+        if(exists) {
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(_builder.Environment.ContentRootPath, "Static")),
+                RequestPath = "/static"
+            });
+        }
+        
         
         app.UseExceptionHandler(c => c.Run(async context => {
             Exception exception = context.Features.Get<IExceptionHandlerPathFeature>().Error;

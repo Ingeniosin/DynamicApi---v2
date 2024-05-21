@@ -30,7 +30,7 @@ public static class Configuration {
         NullValueHandling = NullValueHandling.Ignore
     };
 
-    private static readonly JsonSerializerSettings JsonConfigurations = new() {
+    public static readonly JsonSerializerSettings JsonConfigurations = new() {
         Formatting = Formatting.None,
         ContractResolver = new CustomContractResolver(),
         ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
@@ -43,7 +43,7 @@ public static class Configuration {
 
     public static WebApplication Configure<TDbContext>(WebApplicationBuilder builder, List<ServiceInfo> services,
         List<Action<TDbContext>> defaultValues, ILogger logger) where TDbContext : DbContext {
-        JsonConvert.DefaultSettings = () => JsonConfigurations;
+        // JsonConvert.DefaultSettings = () => JsonConfigurations;
 
         services.ForEach(service => {
             if(service.IsScoped) {
@@ -143,7 +143,7 @@ public static class Configuration {
                 .UseNpgsql(connectionString)
                 .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.DetachedLazyLoadingWarning));
 
-            if(builder.Environment.IsDevelopment()) {
+            if(builder.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("Logging:EnableDatabaseLogging")) {
                 x.LogTo(msg => logger.LogInformation(msg), new[] { RelationalEventId.CommandExecuted });
             }
         });
@@ -212,7 +212,6 @@ public static class Configuration {
         logger.LogWarning($"Timezone DB: {timezone}");
         logger.LogWarning($"Timezone .net: {TimeZoneInfo.Local.DisplayName}");
         logger.LogInformation("Tablas creadas!");
-
         return app;
     }
 

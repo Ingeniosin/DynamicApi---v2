@@ -12,8 +12,9 @@ public class ModelValidator {
 
         var validator = new DataAnnotationsValidator.DataAnnotationsValidator();
         var validationResults = new List<ValidationResult>();
+        
 
-        validator.TryValidateObjectRecursive(model, validationResults);
+        validator.TryValidateObject(model, validationResults); // TODO: cambiar por recursivo pero arreglar bug circular
         var type = EntityHandler.Unproxy(model.GetType());
         var results = validationResults.Where(validationResult => {
                 var first = type.Name + "." + validationResult.MemberNames.First();

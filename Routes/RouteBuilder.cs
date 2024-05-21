@@ -54,16 +54,18 @@ public class RouteBuilder<TDbContext> where TDbContext : DynamicContext {
         return this;
     }
 
-    public RouteBuilder<TDbContext> addEnum<T>(string name) where T : struct, Enum {
-        var route = new EnumRoute<T>(name);
+    public RouteBuilder<TDbContext> addEnum<T, D>(string name, IReadOnlyDictionary<T, D> data) where T : struct, Enum where D : class {
+        var route = new EnumRoute<T, D>(name, data);
         addRoute(route);
         return this;
     }
+    
+    public RouteBuilder<TDbContext> addEnum<T>(string name) where T : struct, Enum {
+        return addEnum(name, new Dictionary<T, dynamic>());
+    }
 
     public RouteBuilder<TDbContext> addEnum<T>() where T : struct, Enum {
-        var route = new EnumRoute<T>(typeof(T).Name);
-        addRoute(route);
-        return this;
+        return addEnum<T>(typeof(T).Name);
     }
 
     public RouteBuilder<TDbContext> addView<T, TService>(string name, bool isScoped) where T : class where TService : ViewRouteImpl {

@@ -1,4 +1,5 @@
-﻿using DynamicApi.Exceptions;
+﻿using DynamicApi.Configurations;
+using DynamicApi.Exceptions;
 using DynamicApi.Serializers;
 using DynamicApi.Services;
 using DynamicApi.Validators;
@@ -10,20 +11,21 @@ namespace DynamicApi.Routes.Types;
 public class ActionRoute<TIn, TService> : Route where TService : IActionService<TIn> {
 
     private static async Task<IResult> Post(HttpContext httpContext, [FromServices] TService service) {
-        var values = httpContext.Request.Form["values"];
-        /*var contentType = httpContext.Request.ContentType;
+        var contentType = httpContext.Request.ContentType;
         string values;
-        if(contentType == "application/json") {
+        if(contentType != null && contentType.Contains("application/json")) {
             var requestBody = httpContext.Request.Body;
             var reader = new StreamReader(requestBody);
             values = await reader.ReadToEndAsync();
         } else {
             values = httpContext.Request.Form["values"];
-        }*/
+        }
+        
+        httpContext.Items["values"] = values;
 
         var newInstance = string.IsNullOrEmpty(values)
             ? Activator.CreateInstance<TIn>()
-            : JsonConvert.DeserializeObject<TIn>(values);
+            : JsonConvert.DeserializeObject<TIn>(values, Configuration.JsonConfigurations);
 
         ModelValidator.TryValidateModel(newInstance, out bool isValid, out IResult validationResults);
 
