@@ -25,10 +25,10 @@ public class DynamicApi<TDbContext> where TDbContext : DynamicContext {
         var nlog = File.Exists("nlog.config");
 
         using var loggerFactory = LoggerFactory.Create(loggingBuilder => {
-            loggingBuilder.SetMinimumLevel(LogLevel.Trace).AddConsole();
+            loggingBuilder.SetMinimumLevel(LogLevel.Information).AddConsole();
 
             if(nlog) {
-                loggingBuilder.SetMinimumLevel(LogLevel.Trace).AddNLog();
+                loggingBuilder.SetMinimumLevel(LogLevel.Information).AddNLog();
             }
         });
 
@@ -61,14 +61,17 @@ public class DynamicApi<TDbContext> where TDbContext : DynamicContext {
     public void Start() {
         var app = Configuration.Configure(_builder, _services, _defaultValues, _logger);
 
+
+
+        var staticPath = Path.Combine(_builder.Environment.ContentRootPath, "Static");
         
-        
-        bool exists = Directory.Exists(Path.Combine(_builder.Environment.ContentRootPath, "Static"));
+        bool exists = Directory.Exists(staticPath);
         if(exists) {
+            _logger.LogInformation("[class:DynamicApi][method:Start] Static directory found, serving static files: {staticPath}", staticPath);
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(
-                    Path.Combine(_builder.Environment.ContentRootPath, "Static")),
+                    staticPath),
                 RequestPath = "/static"
             });
         }
@@ -79,11 +82,14 @@ public class DynamicApi<TDbContext> where TDbContext : DynamicContext {
             if(exception is ApiException apiException) {
                 context.Response.StatusCode = (int) apiException.StatusCode;
             }
-            
+
+            //has header x-debug
+            var bypass = context.Request.Headers["x-debug"].Any();
+            var isDevelopment = _builder.Environment.IsDevelopment() || bypass;
             var response = new {
                 error = exception.Message,
-                detail =  _builder.Environment.IsDevelopment() ? exception?.InnerException?.Message : null,
-                stack = _builder.Environment.IsDevelopment() ? exception.StackTrace : null,
+                detail =  isDevelopment ? exception?.InnerException?.Message : null,
+                stack = isDevelopment ? exception.StackTrace : null,
             };
             await context.Response.WriteAsJsonAsync(response);
         }));
